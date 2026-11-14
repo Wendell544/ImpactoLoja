@@ -1,4 +1,4 @@
-﻿const V = 9, PFX = 'bilinha_joias_', KEY = {
+﻿const V = 10, PFX = 'impacto_', KEY = {
   prod: PFX + 'products',
   cart: PFX + 'cart',
   ads: PFX + 'ads',
@@ -16,24 +16,27 @@
   log: PFX + 'log'
 };
 
-const SB_URL = 'https://ncrsodkpduroulzkpaky.supabase.co';
-const SB_KEY = 'sb_publishable_OOejb1xfSYPHVD8Xf4F09g_YT_Sa5lu';
+/* ---- COLE AQUI OS DADOS DO NOVO SUPABASE ---- */
+const SB_URL = 'COLE_AQUI_A_URL_DO_SUPABASE_DA_IMPACTO';
+const SB_KEY = 'COLE_AQUI_A_CHAVE_ANON_DO_SUPABASE';
 
-const GH_OWNER = 'Wendell544';
-const GH_REPO = 'Bilinhajoias';
+/* ---- COLE AQUI OS DADOS DO NOVO GITHUB ---- */
+const GH_OWNER = 'SeuUsuarioGitHub';
+const GH_REPO = 'ImpactoLoja';
 
-const WAD = ['5583', '9990', '74027'].join('');
-const CATS0 = ['Pratas', 'Relógios', 'Alianças', 'Colares', 'Óculos', 'Combos'];
+/* ---- DADOS DA LOJA ---- */
+const WAD = ['5583', '99999', '9999'].join(''); // Coloque o WhatsApp da Impacto aqui
+const CATS0 = ['Camisetas', 'Polos', 'Bermudas', 'Calças', 'Calçados', 'Acessórios'];
 
 const SET0 = {
   kick: 'São Bento · Paraíba',
-  title: 'Autenticidade e Tradição que Brilham em Joias',
-  text: 'Pratas 925, alianças, relógios e peças selecionadas com cuidado. Escolha o que ama e finalize no WhatsApp.',
-  about: '',
+  title: 'Estilo e Atitude para o Seu Dia a Dia',
+  text: 'Moda masculina com as melhores marcas. Escolha suas peças favoritas e finalize seu pedido direto no WhatsApp.',
+  about: 'Moda masculina para você, no seu estilo!',
   wa: WAD,
   email: '',
-  addr: 'São Bento – PB',
-  ig: 'bilinha_joias',
+  addr: 'São Bento - PB',
+  ig: 'impactoloja.sb',
   fb: '',
   sec: 6,
   page: 12,
@@ -124,14 +127,12 @@ const art = (h) =>
   );
 
 const seed = () => [
-  ['Colar de Prata 925 com Inicial', 'Colares', 189.9, 159.9, '6x sem juros', 'Prata 925 com banho de ródio, corrente de 45 cm e fecho lagosta.', 1, 215],
-  ['Aliança de Ouro 18k', 'Alianças', 1490, 0, '10x sem juros', 'Ouro 18k, acabamento polido, 4 mm. Vendida por unidade.', 1, 42],
-  ['Relógio Cronógrafo Luxe', 'Relógios', 899.9, 749.9, '10x sem juros', 'Caixa de aço 42 mm, pulseira metálica e cronógrafo.', 0, 225],
-  ['Brinco de Pérola Natural', 'Pratas', 229.9, 0, '6x sem juros', 'Pérola natural de 8 mm com haste em prata 925.', 0, 335],
-  ['Óculos de Sol Cat-Eye', 'Óculos', 329.9, 279.9, '5x sem juros', 'Armação cat-eye em acetato, lentes com proteção UV400.', 0, 200],
-  ['Pulseira Berloque', 'Pratas', 349.9, 0, '8x sem juros', 'Prata 925 de 18 cm com fecho de segurança para berloques.', 1, 275],
-  ['Conjunto Coração Zircônia', 'Combos', 419.9, 369.9, '10x sem juros', 'Colar e brincos de coração com zircônias e banho de ródio.', 0, 350],
-  ['Anel Solitário Prata', 'Pratas', 259.9, 0, '6x sem juros', 'Solitário em prata 925 com zircônia de 6 mm. Aro ajustável.', 0, 160]
+  ['Camiseta Oversized Premium', 'Camisetas', 89.9, 69.9, '3x sem juros', 'Algodão de alta qualidade com modelagem confortável.', 1, 215],
+  ['Calça Cargo Tactel', 'Calças', 159.9, 0, '5x sem juros', 'Calça cargo resistente, ideal para o dia a dia.', 1, 42],
+  ['Bermuda Sarja Slim', 'Bermudas', 109.9, 89.9, '3x sem juros', 'Tecido leve com elastano. Perfeita para o calor.', 0, 225],
+  ['Camisa Polo Basic', 'Polos', 129.9, 0, '4x sem juros', 'Polo clássica em piquet. Elegância e conforto.', 0, 335],
+  ['Tênis Casual Urbano', 'Calçados', 249.9, 199.9, '6x sem juros', 'Design moderno e solado confortável.', 0, 200],
+  ['Boné Aba Reta Snapback', 'Acessórios', 59.9, 0, '2x sem juros', 'Aba reta com ajuste traseiro. Estilo streetwear.', 1, 275]
 ].map((a, i) => ({
   id: i + 1,
   title: a[0],
@@ -150,18 +151,9 @@ const ads0 = () => [
   {
     id: 1,
     on: true,
-    title: 'Peça pelo WhatsApp',
-    text: 'Monte sua sacola e finalize com atendimento direto da loja.',
-    btn: 'Começar agora',
-    link: '',
-    img: null
-  },
-  {
-    id: 2,
-    on: true,
-    title: 'Combos para presentear',
-    text: 'Conjuntos selecionados. Consulte condições no WhatsApp.',
-    btn: 'Consultar',
+    title: 'Novidades da Semana',
+    text: 'Confira as peças que acabaram de chegar na loja.',
+    btn: 'Ver Coleção',
     link: '',
     img: null
   }
