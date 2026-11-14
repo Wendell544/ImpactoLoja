@@ -29,7 +29,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 a{color:inherit;text-decoration:none}
 s{opacity:.7}
 .hid{display:none!important}
-.serif{font-family:"Bebas Neue", Impact, sans-serif; font-weight:400; letter-spacing: 1px;} /* Fonte imponente */
+.serif{font-family:"Bebas Neue", Impact, sans-serif; font-weight:400; letter-spacing: 1px;}
 .w{width:100%;max-width:1280px;margin:0 auto;padding:0 16px}
 .sf{background:var(--sf)}.tm{color:var(--mt)}.tg{color:var(--gd)}
 .br{border:1px solid var(--bd)}
@@ -39,7 +39,7 @@ s{opacity:.7}
 .err{color:var(--er);font-size:.8rem}
 .b{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:44px;padding:0 18px;border-radius:4px;font-size:.875rem;font-weight:600;transition:.2s;text-align:center;text-transform:uppercase;letter-spacing:.5px}
 .b:disabled{opacity:.5;cursor:not-allowed}
-.gold{background:var(--tx);color:var(--bg)} /* Preto e Branco para Masculino */
+.gold{background:var(--tx);color:var(--bg)}
 .gold:not(:disabled):hover{filter:brightness(0.8);box-shadow:0 4px 14px rgba(0,0,0,.2)}
 .ghost{border:1px solid var(--bd)}.ghost:hover,.chip:hover,.q:hover{border-color:var(--tx);color:var(--tx)}
 .ghost-g{border:1px solid rgba(255,255,255,.2);color:#fff}

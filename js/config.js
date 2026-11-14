@@ -17,15 +17,15 @@
 };
 
 /* ---- COLE AQUI OS DADOS DO NOVO SUPABASE ---- */
-const SB_URL = 'COLE_AQUI_A_URL_DO_SUPABASE_DA_IMPACTO';
-const SB_KEY = 'COLE_AQUI_A_CHAVE_ANON_DO_SUPABASE';
+const SB_URL = 'https://rkrqqreogrkhvfacaqdg.supabase.co';
+const SB_KEY = 'sb_publishable_n9lkB2JjH_a1d2hr3GgiyA_xMJ1BAgF';
 
 /* ---- COLE AQUI OS DADOS DO NOVO GITHUB ---- */
-const GH_OWNER = 'SeuUsuarioGitHub';
+const GH_OWNER = 'wendell544';
 const GH_REPO = 'ImpactoLoja';
 
 /* ---- DADOS DA LOJA ---- */
-const WAD = ['5583', '99999', '9999'].join(''); // Coloque o WhatsApp da Impacto aqui
+const WAD = ['5583', '99684', '3617'].join(''); // Coloque o WhatsApp da Impacto aqui
 const CATS0 = ['Camisetas', 'Polos', 'Bermudas', 'Calças', 'Calçados', 'Acessórios'];
 
 const SET0 = {

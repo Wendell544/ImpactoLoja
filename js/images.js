@@ -39,21 +39,17 @@ const IMG = (() => {
   };
 
   const optimize = async (s, isBanner) => {
-    // Banner: começa com 1920px e tenta ficar < 250kb
-    // Produto: começa com 1200px e tenta ficar < 150kb
     let max = isBanner ? 1920 : 1200;
     let q = 0.82;
     let targetSize = isBanner ? 250 * 1024 : 150 * 1024;
     
     let b = await enc(s, max, q);
     
-    // Loop agressivo reduzindo qualidade
     while (b && b.size > targetSize && q > 0.5) {
       q -= 0.1;
       b = await enc(s, max, q);
     }
 
-    // Se mesmo assim estiver muito grande, reduz a resolução drasticamente
     if (b && b.size > targetSize * 1.5) {
       max = isBanner ? 1200 : 800;
       q = 0.6;

@@ -35,7 +35,7 @@ function hero(){
   $('hk').textContent=s.kick;
   $('ht').innerHTML=esc(s.title).replace(/(\S+)$/,'<span class="gt">$1</span>');
   $('hx').textContent=s.text;
-  $('hw').href=wa('Olá! Vim pelo site da Bilinha Jóias e Pratas e gostaria de ajuda.');
+  $('hw').href=wa('Olá! Vim pelo site da IMPACTO e gostaria de ajuda.');
 }
 
 const card=p=>{
@@ -159,7 +159,7 @@ function footer(){
   if(/^[\w.]{1,30}$/.test(ig))L.push(`<a class="tg" target="_blank" rel="noopener" href="https://www.instagram.com/${ig}/">@${ig}</a>`);
   if(okUrl(s.fb))L.push(`<a class="tg" target="_blank" rel="noopener" href="${esc(s.fb)}">Facebook</a>`);
   if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email||''))L.push(`<a class="tg" href="mailto:${esc(s.email)}">${esc(s.email)}</a>`);
-  $('ft').innerHTML=`<span class="tg">${ic('gem',26)}</span><div class="serif tg h2">Bilinha Jóias e Pratas</div>${s.about?`<p style="max-width:560px">${esc(s.about)}</p>`:''}<p>${esc(s.addr)}</p><div class="lk">${L.join('')}</div><button class="dots-btn" data-a="admin" tabindex="-1" aria-hidden="true">•••</button>`
+  $('ft').innerHTML=`<span class="tg">${ic('gem',26)}</span><div class="serif tg h2">IMPACTO</div>${s.about?`<p style="max-width:560px">${esc(s.about)}</p>`:''}<p>${esc(s.addr)}</p><div class="lk">${L.join('')}</div><button class="dots-btn" data-a="admin" tabindex="-1" aria-hidden="true">•••</button>`
 }
 
 const render=()=>{hero();rails();grid();cartUI();footer()};
@@ -204,7 +204,7 @@ ACT.fin=(v,a,e)=>{
   er.textContent=m;er.classList.toggle('hid',!m);
   if(m){e.preventDefault();return}
   a.href=wa([
-    '💎 *Novo pedido · Bilinha Jóias e Pratas*','',
+    '💎 *Novo pedido · IMPACTO*','',
     '👤 *Cliente:* '+n,'📍 *Entrega:* '+d,'💳 *Pagamento:* '+$('pay').value,'',
     '🛍️ *Itens do pedido*',
     ...L.map(({p,qty},i)=>(i+1)+'. '+p.title+'\n    '+qty+' × '+money(pr(p))+' = '+money(pr(p)*qty)+(inst(p)?'\n    ✨ '+inst(p):'')),
