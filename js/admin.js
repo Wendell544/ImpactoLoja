@@ -368,7 +368,7 @@ async function upP(files) {
     toast('Limite de 12 fotos por produto.');
     return;
   }
-  const r = await upRun(files.slice(0, room), false); // PRODUTO: false
+  const r = await upRun(files.slice(0, room), false); 
   r.refs.forEach((x) => {
     if (!A.imgs.some((y) => (R(y)?.u || '') === x.u)) A.imgs.push(x);
   });
@@ -379,18 +379,18 @@ async function upP(files) {
 
 async function upM(files) {
   if (!files.length) return;
-  const r = await upRun([files[0]], true); // BANNER/ANÚNCIO: true
+  const r = await upRun([files[0]], true); 
   if (r.refs[0]) {
-    A.m.img = r.refs[0].u;
+    A.m.img = r.refs[0].u; // Pega EXATAMENTE a URL devolvida pelo GitHub
     mpv();
   }
 }
 
 async function upSet(files) {
   if (!files.length) return;
-  const r = await upRun([files[0]], true); // FUNDO HERO: true
+  const r = await upRun([files[0]], true); 
   if (r.refs[0]) {
-    A.setBg = r.refs[0].u;
+    A.setBg = r.refs[0].u; // Pega EXATAMENTE a URL devolvida pelo GitHub
     setpv();
   }
 }
@@ -566,11 +566,6 @@ const tPw = () => `<section class="sf br box">
     <button class="b gold" data-a="spw">Salvar senha</button>
   </div>
   <div id="pwo" class="col"></div>
-  <hr style="border:0;border-top:1px solid var(--bd);margin:16px 0">
-  <h4 class="serif h3">Manutenção</h4>
-  <p class="sm tm">Remove do GitHub os arquivos <code>img/i_*.webp</code> que não estão referenciados em nenhuma tabela.</p>
-  <button class="b ghost" data-a="cleanup">Limpar imagens órfãs do GitHub</button>
-  <pre id="cleanup-out" class="sm tm" style="white-space:pre-wrap;margin-top:8px"></pre>
 </section>`;
 
 const mv = async (v, d) => {
@@ -582,7 +577,7 @@ const mv = async (v, d) => {
   const orders = L.map((x) => x.sort_order ?? 0);
   [orders[i], orders[j]] = [orders[j], orders[i]];
   await SB.from(k).upsert(L.map((x, idx) => ({ id: x.id, sort_order: orders[idx] })));
-  await loadFromSupabase();
+  await loadFromSupabase(); 
   render();
   show(A.tab);
 };
@@ -915,31 +910,6 @@ ACT.spw = async () => {
   if (error) return toast(errMsg(error));
   $('np').value = '';
   toast('Senha alterada com sucesso.');
-};
-
-ACT.cleanup = async () => {
-  const out = $('cleanup-out');
-  out.textContent = 'Limpando…';
-  const session = await Auth.getSession();
-  if (!session) return toast('Sessão expirada. Faça login novamente.');
-  const res = await fetch(`${SB_URL}/functions/v1/cleanup-orphans`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${session.access_token}` }
-  });
-  let body;
-  try {
-    body = await res.json();
-  } catch (e) {
-    out.textContent = 'Resposta inválida.';
-    return;
-  }
-  if (!res.ok) {
-    out.textContent = 'Erro: ' + (body.error || res.status);
-    return;
-  }
-  out.textContent =
-    `Removidos: ${body.removed?.length ?? 0} · Mantidos: ${body.kept ?? 0} · Total: ${body.total ?? 0}\n` +
-    (body.removed?.length ? body.removed.join('\n') : 'Nenhum órfão encontrado.');
 };
 
 ACT.bk = () => {

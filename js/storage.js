@@ -55,6 +55,14 @@ const lk = (o) =>
     ? o.link
     : wa('Olá! Vi “' + (o.title || 'o anúncio') + '” no site e gostaria de saber mais.');
 
+// Função que força a atualização da imagem (bypass de cache)
+const cacheBust = (img) => {
+  if (!img) return img;
+  if (typeof img === 'string') return img;
+  if (img.u) return { ...img, u: img.u + '?v=' + Date.now() };
+  return img;
+};
+
 async function loadFromSupabase() {
   const [prodRes, adsRes, catsRes, setRes] = await Promise.all([
     SB.from('products').select('*').order('sort_order', { ascending: true }),
@@ -65,14 +73,16 @@ async function loadFromSupabase() {
 
   DB.prod = (prodRes.data ?? []).filter(okP).map((p) => ({
     ...p,
-    images: Array.isArray(p.images) ? p.images : [],
+    images: Array.isArray(p.images) ? p.images.map(cacheBust) : [],
     available: p.available !== false
   }));
 
-  DB.ads = adsRes.data ?? [];
-  DB.categories = catsRes.data ?? [];
+  DB.ads = (adsRes.data ?? []).map(a => ({ ...a, img: cacheBust(a.img) }));
+  DB.categories = (catsRes.data ?? []).map(c => ({ ...c, img: cacheBust(c.img) }));
 
   const s = setRes.data?.data ?? {};
+  if (s.hero_bg) s.hero_bg = cacheBust(s.hero_bg);
+  
   DB.set = { ...SET0, ...s };
   DB.set.show = { ...SET0.show, ...(s.show || {}) };
 
