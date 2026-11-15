@@ -53,14 +53,22 @@ textarea.in{resize:vertical}
 .hd{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--bd)}
 .hd .w{display:flex;align-items:center;gap:12px;padding-top:12px;padding-bottom:12px}
 .logo{display:flex;align-items:center;gap:8px;color:var(--tx);flex:none}
-.logo i,.hs i{display:flex}
-.logo b{display:block;font:700 1.6rem/1 "Bebas Neue", Impact, sans-serif;color:var(--tx); letter-spacing: 2px;}
-.logo small{display:block;font:600 10px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mt);margin-top:2px}
+.logo .lg-img{display:block;height:46px;width:auto;max-width:220px;object-fit:contain}
+@media(max-width:639px){.logo .lg-img{height:40px;max-width:170px}}
+.hs i{display:flex}
 .hs{position:relative;flex:1;max-width:420px;margin:0 auto}
 .hs i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mt)}
 .hs .in{padding-left:40px}
 @media(max-width:639px){.hs{display:none}}
 @media(min-width:640px){.ms{display:none}}
+.lg-lt{display:block}
+.lg-dk{display:none}
+:root[data-theme="dark"] .lg-lt{display:none}
+:root[data-theme="dark"] .lg-dk{display:block}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lg-lt{display:none}
+  :root:not([data-theme="light"]) .lg-dk{display:block}
+}
 .bg{position:relative}
 .bd{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .pop{animation:pop .35s}@keyframes pop{50%{transform:scale(1.45)}}
@@ -164,6 +172,9 @@ img[data-k]:not(.ok){filter:blur(10px);transform:scale(1.04)}
 .pg i{display:block;height:100%;width:0;background:var(--tx);transition:width .2s}
 .ts{position:fixed;left:50%;transform:translateX(-50%);z-index:70;padding:12px 20px;border-radius:4px;font-size:.875rem;font-weight:600;max-width:90vw;text-align:center;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);box-shadow:var(--sh)}
 .ft{margin-top:56px;padding-top:40px;padding-bottom:16px;border-top:1px solid var(--bd);text-align:center;color:var(--mt);font-size:.875rem;display:flex;flex-direction:column;align-items:center;gap:8px}
+.ft-logo{display:flex;justify-content:center;margin:0 0 4px}
+.ft-logo .lg-img{display:block;height:64px;width:auto;max-width:240px;object-fit:contain}
+@media(max-width:639px){.ft-logo .lg-img{height:54px;max-width:200px}}
 .ft .lk{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 8px}
 .ft .lk a{padding:10px 8px}
 .dots-btn{width:56px;height:44px;opacity:.05;letter-spacing:.2em}
