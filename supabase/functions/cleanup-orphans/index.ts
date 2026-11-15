@@ -23,8 +23,15 @@ function jsonFor(req: Request, body: unknown, status = 200) {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsFor(req) });
+    return new Response(null, {
+      status: 204,
+      headers: {
+        ...corsFor(req),
+        'Access-Control-Max-Age': '86400',
+      },
+    });
   }
+
   const origin = req.headers.get('Origin') ?? '';
   if (origin && !ALLOWED_ORIGINS.includes(origin)) {
     return jsonFor(req, { error: 'Origem não permitida.' }, 403);

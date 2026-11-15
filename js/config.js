@@ -1,4 +1,4 @@
-﻿const V = 10, PFX = 'impacto_', KEY = {
+const V = 12, PFX = 'godeiro_', KEY = {
   prod: PFX + 'products',
   cart: PFX + 'cart',
   ads: PFX + 'ads',
@@ -16,27 +16,27 @@
   log: PFX + 'log'
 };
 
-/* ---- COLE AQUI OS DADOS DO NOVO SUPABASE ---- */
-const SB_URL = 'https://rkrqqreogrkhvfacaqdg.supabase.co';
-const SB_KEY = 'sb_publishable_n9lkB2JjH_a1d2hr3GgiyA_xMJ1BAgF';
+/* ---- COLE AQUI OS DADOS DO NOVO SUPABASE (Godeiro) ---- */
+const SB_URL = 'COLE_AQUI_A_URL_DO_SUPABASE_DA_GODEIRO';
+const SB_KEY = 'COLE_AQUI_A_CHAVE_ANON_DO_SUPABASE';
 
 /* ---- COLE AQUI OS DADOS DO NOVO GITHUB ---- */
 const GH_OWNER = 'wendell544';
-const GH_REPO = 'ImpactoLoja';
+const GH_REPO = 'GodeiroLoja';
 
 /* ---- DADOS DA LOJA ---- */
-const WAD = ['5583', '99684', '3617'].join(''); // Coloque o WhatsApp da Impacto aqui
-const CATS0 = ['Camisetas', 'Polos', 'Bermudas', 'Calças', 'Calçados', 'Acessórios'];
+const WAD = ['5583', '99999', '9999'].join(''); // Coloque o WhatsApp real
+const CATS0 = ['Camisas', 'Polos', 'Calças', 'Bermudas', 'Calçados', 'Acessórios'];
 
 const SET0 = {
-  kick: 'São Bento · Paraíba',
-  title: 'Estilo e Atitude para o Seu Dia a Dia',
-  text: 'Moda masculina com as melhores marcas. Escolha suas peças favoritas e finalize seu pedido direto no WhatsApp.',
-  about: 'Moda masculina para você, no seu estilo!',
+  kick: 'Brejo do Cruz e São Bento - PB',
+  title: 'Mais de 7 Anos no Mercado da Moda',
+  text: 'Enviamos para todo o Brasil. Encontre as melhores peças masculinas e finalize no WhatsApp.',
+  about: 'No mercado há mais de 7 anos. Lojas físicas em Brejo do Cruz-PB e São Bento-PB.',
   wa: WAD,
   email: '',
-  addr: 'São Bento - PB',
-  ig: 'impactoloja.sb',
+  addr: 'Brejo do Cruz - PB',
+  ig: 'godeiroimports1',
   fb: '',
   sec: 6,
   page: 12,
@@ -123,11 +123,11 @@ const art = (h) =>
       h +
       ',28%,26%)"/><stop offset="1" stop-color="hsl(' +
       h +
-      ',22%,8%)"/></radialGradient></defs><rect width="400" height="400" fill="url(#g)"/><g fill="none" stroke="#D4AF37" stroke-width="3" stroke-linejoin="round"><path d="M140 150h120l40 50-100 110-100-110z"/><path d="M100 200h200M140 150l60 160 60-160M170 150l30 50 30-50"/></g><text x="200" y="365" text-anchor="middle" font-family="Georgia,serif" font-size="20" letter-spacing="6" fill="#D4AF37" opacity=".7">BILINHA</text></svg>',
+      ',22%,8%)"/></radialGradient></defs><rect width="400" height="400" fill="url(#g)"/><g fill="none" stroke="#e11d48" stroke-width="3" stroke-linejoin="round"><path d="M140 150h120l40 50-100 110-100-110z"/></g><text x="200" y="365" text-anchor="middle" font-family="sans-serif" font-size="20" letter-spacing="6" fill="#e11d48" opacity=".7">GODEIRO</text></svg>',
   );
 
 const seed = () => [
-  ['Camiseta Oversized Premium', 'Camisetas', 89.9, 69.9, '3x sem juros', 'Algodão de alta qualidade com modelagem confortável.', 1, 215],
+  ['Camiseta Oversized Premium', 'Camisas', 89.9, 69.9, '3x sem juros', 'Algodão de alta qualidade com modelagem confortável.', 1, 215],
   ['Calça Cargo Tactel', 'Calças', 159.9, 0, '5x sem juros', 'Calça cargo resistente, ideal para o dia a dia.', 1, 42],
   ['Bermuda Sarja Slim', 'Bermudas', 109.9, 89.9, '3x sem juros', 'Tecido leve com elastano. Perfeita para o calor.', 0, 225],
   ['Camisa Polo Basic', 'Polos', 129.9, 0, '4x sem juros', 'Polo clássica em piquet. Elegância e conforto.', 0, 335],
