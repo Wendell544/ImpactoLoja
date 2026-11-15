@@ -51,12 +51,12 @@ s{opacity:.7}
 .in:focus-visible,.b:focus-visible,.q:focus-visible,.chip:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
 textarea.in{resize:vertical}
 
-/* ===== HEADER SEM LINHA E LOGO 75% ===== */
+/* ===== HEADER SEM LINHA E LOGO GRANDE ===== */
 .hd{
   position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
   background:var(--bg);
   height:72px;
-  /* sem border-bottom */
+  overflow:visible;
 }
 @media(max-width:639px){.hd{height:60px}}
 
@@ -79,17 +79,16 @@ textarea.in{resize:vertical}
   flex:none;
 }
 
-/* Ambas as logos: MESMO container, MESMO object-fit -> MESMO tamanho visual */
+/* Logo MAIOR que o container (130%) para estourar o padding transparente do PNG.
+   object-fit:contain garante que a proporção nunca distorce.
+   Como header tem 72px e 130% de 54px = 70.2px, ainda cabe dentro do header. */
 .logo .lg-img{
-  height:100%;
+  height:130%;
   width:auto;
-  max-width:220px;
+  max-width:none;
   object-fit:contain;
   object-position:left center;
   display:block;
-}
-@media(max-width:639px){
-  .logo .lg-img{max-width:160px}
 }
 
 /* Troca por CSS (não mexe em src) */
@@ -223,10 +222,8 @@ img[data-k]:not(.ok){filter:blur(10px);transform:scale(1.04)}
   flex-direction:column;
   align-items:center;
   gap:8px;
-  /* sem border-top */
 }
 
-/* Container do logo: flex para centralizar horizontal e verticalmente */
 .ft-logo{
   display:flex;
   align-items:center;
@@ -234,25 +231,21 @@ img[data-k]:not(.ok){filter:blur(10px);transform:scale(1.04)}
   width:100%;
   height:80px;
   margin:0 0 8px;
+  overflow:visible;
 }
 @media(max-width:639px){
   .ft-logo{height:64px}
 }
 
-/* Logo do rodapé: contain (mostra tudo, sem corte), centralizada pelo flex */
 .ft-logo .lg-img{
-  height:80%;
+  height:130%;
   width:auto;
-  max-width:280px;
+  max-width:none;
   object-fit:contain;
   object-position:center;
   display:block;
 }
-@media(max-width:639px){
-  .ft-logo .lg-img{max-width:200px}
-}
 
-/* Troca por CSS (mesma técnica do header) */
 .ft-logo .lg-lt{display:block}
 .ft-logo .lg-dk{display:none}
 :root[data-theme="dark"] .ft-logo .lg-lt{display:none}
