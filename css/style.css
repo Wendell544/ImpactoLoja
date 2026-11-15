@@ -51,11 +51,11 @@ s{opacity:.7}
 .in:focus-visible,.b:focus-visible,.q:focus-visible,.chip:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
 textarea.in{resize:vertical}
 
-/* ===== HEADER SEM LINHA, LOGO 78% DA ALTURA ===== */
+/* ===== HEADER FINO, SEM LINHA INFERIOR, LOGO 78% ===== */
 .hd{
   position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
   background:var(--bg);
-  border-bottom:0;                    /* LINHA REMOVIDA */
+  border-bottom:0;
   height:72px;
 }
 @media(max-width:639px){.hd{height:60px}}
@@ -65,20 +65,20 @@ textarea.in{resize:vertical}
 }
 .logo{
   position:relative;
-  height:78%;                         /* 78% da altura do header */
-  width:280px;
+  height:78%;
+  width:320px;
   flex:none;
+  overflow:hidden;
   display:block;
 }
-@media(max-width:639px){.logo{width:190px}}
-/* regras 100% idênticas para as duas imagens — nenhuma diferença de tamanho entre temas */
+@media(max-width:639px){.logo{width:220px}}
 .logo .lg-img{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
-  object-fit:contain;
-  object-position:left center;
+  object-fit:cover;
+  object-position:center center;
   display:block;
 }
 .logo .lg-lt{display:block}
@@ -89,7 +89,6 @@ textarea.in{resize:vertical}
   :root:not([data-theme="light"]) .logo .lg-lt{display:none}
   :root:not([data-theme="light"]) .logo .lg-dk{display:block}
 }
-/* ============================================== */
 
 .hs i{display:flex}
 .hs{position:relative;flex:1;max-width:420px;margin:0 auto}
@@ -200,7 +199,7 @@ img[data-k]:not(.ok){filter:blur(10px);transform:scale(1.04)}
 .pg i{display:block;height:100%;width:0;background:var(--tx);transition:width .2s}
 .ts{position:fixed;left:50%;transform:translateX(-50%);z-index:70;padding:12px 20px;border-radius:4px;font-size:.875rem;font-weight:600;max-width:90vw;text-align:center;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);box-shadow:var(--sh)}
 
-/* ===== RODAPÉ DISCRETO, LOGO CENTRALIZADA E SEM CORTE ===== */
+/* ===== RODAPÉ DISCRETO, LOGO CENTRALIZADA ===== */
 .ft{
   margin-top:48px;padding-top:32px;padding-bottom:24px;
   text-align:center;color:var(--mt);font-size:.875rem;
@@ -210,11 +209,11 @@ img[data-k]:not(.ok){filter:blur(10px);transform:scale(1.04)}
   display:flex;
   justify-content:center;
   align-items:center;
-  height:80px;
+  height:90px;
   width:100%;
   margin:0 0 12px;
 }
-@media(max-width:639px){.ft-logo{height:64px}}
+@media(max-width:639px){.ft-logo{height:70px}}
 .ft-logo .lg-img{
   display:block;
   height:100%;
