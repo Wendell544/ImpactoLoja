@@ -51,7 +51,7 @@ s{opacity:.7}
 .in:focus-visible,.b:focus-visible,.q:focus-visible,.chip:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
 textarea.in{resize:vertical}
 
-/* ===== HEADER SEM LINHA E LOGO 78% ===== */
+/* ===== HEADER SEM LINHA E LOGO 75% ===== */
 .hd{
   position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
   background:var(--bg);
@@ -69,10 +69,10 @@ textarea.in{resize:vertical}
   padding-bottom:0;
 }
 
-/* Container da logo: 78% da altura do header */
+/* Container da logo: 75% da altura do header */
 .logo{
   position:relative;
-  height:78%;
+  height:75%;
   display:flex;
   align-items:center;
   justify-content:flex-start;
