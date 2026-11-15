@@ -163,7 +163,7 @@ function footer() {
   if (/^[\w.]{1,30}$/.test(ig)) L.push(`<a class="tg" target="_blank" rel="noopener" href="https://www.instagram.com/${ig}/">@${ig}</a>`);
   if (okUrl(s.fb)) L.push(`<a class="tg" target="_blank" rel="noopener" href="${esc(s.fb)}">Facebook</a>`);
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email || '')) L.push(`<a class="tg" href="mailto:${esc(s.email)}">${esc(s.email)}</a>`);
-  $('ft').innerHTML = `<div class="ft-logo"><img class="lg-img" src="${lightUrl}" data-src-light="${lightUrl}" data-src-dark="${darkUrl}" alt="IMPACTO" width="500" height="160" loading="lazy" decoding="async"></div>${s.about ? `<p style="max-width:560px">${esc(s.about)}</p>` : ''}<p>${esc(s.addr)}</p><div class="lk">${L.join('')}</div><button class="dots-btn" data-a="admin" tabindex="-1" aria-hidden="true">•••</button>`;
+  $('ft').innerHTML = `<div class="ft-logo"><img class="lg-img" src="${lightUrl}" data-src-light="${lightUrl}" data-src-dark="${darkUrl}" alt="IMPACTO" width="720" height="240" loading="lazy" decoding="async"></div>${s.about ? `<p style="max-width:560px">${esc(s.about)}</p>` : ''}<p>${esc(s.addr)}</p><div class="lk">${L.join('')}</div><button class="dots-btn" data-a="admin" tabindex="-1" aria-hidden="true">•••</button>`;
   if (typeof updateLogo === 'function') updateLogo();
 }
 
