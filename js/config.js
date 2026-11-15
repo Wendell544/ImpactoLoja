@@ -1,4 +1,4 @@
-const V = 12, PFX = 'impacto_', KEY = {
+const V = 15, PFX = 'impacto_', KEY = {
   prod: PFX + 'products', cart: PFX + 'cart', ads: PFX + 'ads', cats: PFX + 'cats',
   set: PFX + 'settings', meta: PFX + 'meta', pref: PFX + 'prefs', draft: PFX + 'draft',
   pw: PFX + 'k2', lock: PFX + 'lock', hist: PFX + 'hist', adm: PFX + 'adm',
@@ -14,7 +14,7 @@ const GH_OWNER = 'wendell544';
 const GH_REPO = 'ImpactoLoja';
 
 /* ---- DADOS DA LOJA ---- */
-const WAD = ['5583', '99999', '9999'].join(''); // Coloque o WhatsApp real
+const WAD = ['5583', '99999', '9999'].join('');
 const CATS0 = ['Camisas', 'Polos', 'Calças', 'Bermudas', 'Calçados', 'Acessórios'];
 
 const SET0 = {
@@ -63,13 +63,15 @@ const toast = (t) => {
 const lock = () => {
   document.documentElement.classList.toggle(
     'al',
-    ['lg', 'pm', 'adm'].some((i) => !$(i).classList.contains('hid')) ||
-      $('drw').classList.contains('on'),
+    ['lg', 'pm', 'adm'].some((i) => $(i) && !$(i).classList.contains('hid')) ||
+      ($('drw') && $('drw').classList.contains('on')),
   );
 };
 
 const modal = (id, on) => {
-  $(id).classList.toggle('hid', !on);
+  const el = $(id);
+  if (!el) return;
+  el.classList.toggle('hid', !on);
   lock();
   if (on && id === 'lg') setTimeout(() => $('pw')?.focus(), 50);
 };
