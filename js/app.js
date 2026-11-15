@@ -1,10 +1,31 @@
-function updateLogo(){
+function updateLogo() {
   const r = document.documentElement;
   const t = r.getAttribute('data-theme');
   const isDark = t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches);
+
   document.querySelectorAll('img.lg-img').forEach((img) => {
-    const src = isDark ? img.dataset.srcDark : img.dataset.srcLight;
-    if (src && img.getAttribute('src') !== src) img.setAttribute('src', src);
+    if (!img._logoHooked) {
+      img._logoHooked = true;
+      img.addEventListener('error', () => {
+        if (img._wantDark && img.dataset.srcLight) {
+          img._darkFailed = true;
+          img._wantDark = false;
+          img.classList.add('lg-invert');
+          img.src = img.dataset.srcLight;
+        }
+      });
+    }
+
+    img.classList.remove('lg-invert');
+
+    if (isDark && !img._darkFailed && img.dataset.srcDark) {
+      img._wantDark = true;
+      if (img.getAttribute('src') !== img.dataset.srcDark) img.src = img.dataset.srcDark;
+    } else {
+      img._wantDark = false;
+      if (isDark && img._darkFailed) img.classList.add('lg-invert');
+      if (img.dataset.srcLight && img.getAttribute('src') !== img.dataset.srcLight) img.src = img.dataset.srcLight;
+    }
   });
 }
 
