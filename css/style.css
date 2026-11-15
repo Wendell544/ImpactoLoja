@@ -51,7 +51,7 @@ s{opacity:.7}
 .in:focus-visible,.b:focus-visible,.q:focus-visible,.chip:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
 textarea.in{resize:vertical}
 
-/* ===== HEADER FINO COM LOGO GRANDE ===== */
+/* ===== HEADER FINO ===== */
 .hd{
   position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
   background:var(--bg);border-bottom:1px solid var(--bd);
@@ -62,38 +62,47 @@ textarea.in{resize:vertical}
   height:100%;display:flex;align-items:center;gap:12px;
   padding-top:0;padding-bottom:0;
 }
+
+/* ===== LOGO ===== */
 .logo{
   position:relative;
-  height:90%;
-  width:200px;
+  height:100%;
+  width:240px;
   flex:none;
-  overflow:hidden;
-  display:block;
 }
-@media(max-width:639px){.logo{width:150px}}
+@media(max-width:639px){.logo{width:165px}}
+
 .logo .lg-img{
   position:absolute;
-  top:0;left:0;
-  width:100%;height:100%;
-  object-fit:cover;
-  object-position:left center;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center center;
   display:block;
+  transition:filter .2s ease;
 }
-/* versão escura ligeiramente maior para compensar o padding do PNG */
-.logo .lg-lt{display:block}
-.logo .lg-dk{display:none;transform:scale(1.2);transform-origin:left center}
-:root[data-theme="dark"] .logo .lg-lt{display:none}
-:root[data-theme="dark"] .logo .lg-dk{display:block}
+
+/* Apenas a logo "preta" (lg-lt) é usada.
+   No tema escuro ela vira branca por filtro invert — tamanho permanece idêntico.
+   A logo "branca" (lg-dk) fica oculta sempre, para não duplicar. */
+.logo .lg-lt{ display:block !important; }
+.logo .lg-dk{ display:none !important; }
+
+:root[data-theme="dark"] .logo .lg-lt{ filter:invert(1); }
+
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .logo .lg-lt{display:none}
-  :root:not([data-theme="light"]) .logo .lg-dk{display:block}
+  :root:not([data-theme="light"]) .logo .lg-lt{ filter:invert(1); }
 }
+
+/* ===== BUSCA ===== */
 .hs i{display:flex}
 .hs{position:relative;flex:1;max-width:420px;margin:0 auto}
 .hs i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mt)}
 .hs .in{padding-left:40px}
 @media(max-width:639px){.hs{display:none}}
 @media(min-width:640px){.ms{display:none}}
+
 .bg{position:relative}
 .bd{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .pop{animation:pop .35s}@keyframes pop{50%{transform:scale(1.45)}}
@@ -199,24 +208,48 @@ img[data-k]:not(.ok){filter:blur(10px);transform:scale(1.04)}
 
 /* ===== RODAPÉ DISCRETO ===== */
 .ft{
-  margin-top:48px;padding-top:32px;padding-bottom:24px;
-  text-align:center;color:var(--mt);font-size:.875rem;
-  display:flex;flex-direction:column;align-items:center;gap:8px;
+  margin-top:48px;
+  padding-top:32px;
+  padding-bottom:24px;
+  text-align:center;
+  color:var(--mt);
+  font-size:.875rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
 }
-.ft-logo{position:relative;height:80px;width:260px;margin:0 0 4px;overflow:hidden}
-@media(max-width:639px){.ft-logo{height:64px;width:200px}}
+
+.ft-logo{
+  position:relative;
+  height:90px;
+  width:280px;
+  margin:0 0 8px 0;
+}
+@media(max-width:639px){
+  .ft-logo{height:70px;width:220px}
+}
+
 .ft-logo .lg-img{
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  object-fit:cover;object-position:left center;display:block;
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center center;
+  display:block;
+  transition:filter .2s ease;
 }
-.ft-logo .lg-img.lg-lt{display:block}
-.ft-logo .lg-img.lg-dk{display:none;transform:scale(1.2);transform-origin:left center}
-:root[data-theme="dark"] .ft-logo .lg-img.lg-lt{display:none}
-:root[data-theme="dark"] .ft-logo .lg-img.lg-dk{display:block}
+
+.ft-logo .lg-lt{ display:block !important; }
+.ft-logo .lg-dk{ display:none !important; }
+
+:root[data-theme="dark"] .ft-logo .lg-lt{ filter:invert(1); }
+
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .ft-logo .lg-img.lg-lt{display:none}
-  :root:not([data-theme="light"]) .ft-logo .lg-img.lg-dk{display:block}
+  :root:not([data-theme="light"]) .ft-logo .lg-lt{ filter:invert(1); }
 }
+
 .ft .lk{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 8px}
 .ft .lk a{padding:10px 8px}
 .dots-btn{width:56px;height:44px;opacity:.05;letter-spacing:.2em}
