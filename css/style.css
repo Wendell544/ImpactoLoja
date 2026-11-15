@@ -51,10 +51,10 @@ s{opacity:.7}
 .in:focus-visible,.b:focus-visible,.q:focus-visible,.chip:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
 textarea.in{resize:vertical}
 
-/* ===== HEADER FINO COM LOGO GRANDE ===== */
+/* ===== HEADER FINO SEM LINHA, LOGO GRANDE ===== */
 .hd{
   position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
-  background:var(--bg);border-bottom:1px solid var(--bd);
+  background:var(--bg);
   height:72px;
 }
 @media(max-width:639px){.hd{height:60px}}
@@ -64,8 +64,8 @@ textarea.in{resize:vertical}
 }
 .logo{
   position:relative;
-  height:90%;               /* logo ocupa 90% da altura do header */
-  width:200px;              /* largura fixa para cortar padding interno via cover */
+  height:90%;
+  width:200px;
   flex:none;
   overflow:hidden;
   display:block;
@@ -78,9 +78,9 @@ textarea.in{resize:vertical}
   object-fit:cover;
   object-position:left center;
   display:block;
-  transition:opacity .15s;
 }
-.logo .lg-dk{display:none}
+/* Logo escura (fundo preto) precisa de zoom extra porque o PNG branco tem mais padding interno */
+.logo .lg-dk{display:none;transform:scale(1.22);transform-origin:left center}
 :root[data-theme="dark"] .logo .lg-lt{display:none}
 :root[data-theme="dark"] .logo .lg-dk{display:block}
 @media (prefers-color-scheme:dark){
@@ -88,7 +88,7 @@ textarea.in{resize:vertical}
   :root:not([data-theme="light"]) .logo .lg-dk{display:block}
 }
 /* troca de logo no rodapé */
-.ft-logo .lg-dk{display:none}
+.ft-logo .lg-dk{display:none;transform:scale(1.22);transform-origin:center center}
 :root[data-theme="dark"] .ft-logo .lg-lt{display:none}
 :root[data-theme="dark"] .ft-logo .lg-dk{display:block}
 @media (prefers-color-scheme:dark){
@@ -208,7 +208,7 @@ img[data-k]:not(.ok){filter:blur(10px);transform:scale(1.04)}
 .ft{margin-top:56px;padding-top:40px;padding-bottom:16px;border-top:1px solid var(--bd);text-align:center;color:var(--mt);font-size:.875rem;display:flex;flex-direction:column;align-items:center;gap:8px}
 .ft-logo{position:relative;height:80px;width:260px;margin:0 0 8px;overflow:hidden}
 @media(max-width:639px){.ft-logo{height:64px;width:200px}}
-.ft-logo .lg-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:left center;display:block}
+.ft-logo .lg-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
 .ft .lk{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 8px}
 .ft .lk a{padding:10px 8px}
 .dots-btn{width:56px;height:44px;opacity:.05;letter-spacing:.2em}
