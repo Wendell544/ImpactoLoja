@@ -46,6 +46,7 @@ document.addEventListener('pointerup', (e) => {
 
 let qt;
 const onQ = (e) => {
+  if (typeof S === 'undefined') return;
   S.q = e.target.value;
   document.querySelectorAll('.qi').forEach((o) => { if (o !== e.target) o.value = S.q; });
   clearTimeout(qt);
@@ -57,26 +58,36 @@ const onQ = (e) => {
     }
   }, 160);
 };
-document.querySelectorAll('.qi').forEach((i) => i.addEventListener('input', onQ));
 
-$('so').addEventListener('change', () => { S.srt = $('so').value; S.n = 0; Prefs.set({ srt: S.srt }); grid(); });
-addEventListener('pagehide', () => { if (A.ok && A.tab === 0) drsNow(); });
-addEventListener('hashchange', () => openFromHash());
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.qi').forEach((i) => i.addEventListener('input', onQ));
 
-const pf = Prefs.get();
-if (pf.theme) document.documentElement.setAttribute('data-theme', pf.theme);
-document.querySelectorAll('[data-i]').forEach((e) => (e.innerHTML = ic(e.dataset.i, +e.dataset.s || 20)));
+  const so = $('so');
+  if (so) so.addEventListener('change', () => { if (typeof S === 'undefined') return; S.srt = so.value; S.n = 0; Prefs.set({ srt: S.srt }); grid(); });
+  addEventListener('pagehide', () => { if (A.ok && A.tab === 0) drsNow(); });
+  addEventListener('hashchange', () => openFromHash());
 
-(async () => {
-  await loadFromSupabase();
-  const session = await Auth.getSession();
-  if (session) {
-    const user = session.user;
-    if (user?.app_metadata?.role === 'admin') { A.ok = true; }
-  }
-  try { await IMG.migrateLegacy(); } catch (e) {}
-  S.cat = pf.cat || 'Todos'; S.srt = pf.srt || 'feat'; $('so').value = S.srt;
-  render();
-  setTimeout(openFromHash, 60);
-})();
-try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+  const pf = Prefs.get();
+  if (pf.theme) document.documentElement.setAttribute('data-theme', pf.theme);
+  document.querySelectorAll('[data-i]').forEach((e) => (e.innerHTML = ic(e.dataset.i, +e.dataset.s || 20)));
+
+  (async () => {
+    try {
+      await loadFromSupabase();
+      const session = await Auth.getSession();
+      if (session) {
+        const user = session.user;
+        if (user?.app_metadata?.role === 'admin') { A.ok = true; }
+      }
+      try { await IMG.migrateLegacy(); } catch (e) { }
+      S.cat = pf.cat || 'Todos'; S.srt = pf.srt || 'feat'; if (so) so.value = S.srt;
+      render();
+      setTimeout(openFromHash, 60);
+    } catch (err) {
+      console.error('Falha na inicialização:', err);
+      toast('Erro ao carregar a loja. Recarregue a página.');
+    }
+  })();
+
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { }
+});
