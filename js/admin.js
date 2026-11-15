@@ -155,7 +155,7 @@ async function upRun0(files, isBanner) {
 async function upP(files) {
   if (!files.length) return;
   const room = 12 - A.imgs.length; if (room <= 0) { toast('Limite de 12 fotos por produto.'); return; }
-  const r = await upRun(files.slice(0, room), false); 
+  const r = await upRun(files.slice(0, room), false);
   r.refs.forEach((x) => { if (!A.imgs.some((y) => (R(y)?.u || '') === x.u)) A.imgs.push(x); });
   if (r.refs.length) A.sel = A.imgs.length - 1;
   phs(); drs();
@@ -163,13 +163,13 @@ async function upP(files) {
 
 async function upM(files) {
   if (!files.length) return;
-  const r = await upRun([files[0]], true); 
+  const r = await upRun([files[0]], true);
   if (r.refs[0]) { A.m.img = r.refs[0].u; mpv(); }
 }
 
 async function upSet(files) {
   if (!files.length) return;
-  const r = await upRun([files[0]], true); 
+  const r = await upRun([files[0]], true);
   if (r.refs[0]) { A.setBg = r.refs[0].u; setpv(); }
 }
 
@@ -363,7 +363,7 @@ ACT.cleanup = async () => {
   out.textContent = 'Limpando…';
   const session = await Auth.getSession();
   if (!session) return toast('Sessão expirada. Faça login novamente.');
-  
+
   const res = await fetch(`${SB_URL}/functions/v1/cleanup-orphans`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${session.access_token}` }
