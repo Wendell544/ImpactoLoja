@@ -1,3 +1,13 @@
+function updateLogo(){
+  const r = document.documentElement;
+  const t = r.getAttribute('data-theme');
+  const isDark = t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.querySelectorAll('img.lg-img').forEach((img) => {
+    const src = isDark ? img.dataset.srcDark : img.dataset.srcLight;
+    if (src && img.getAttribute('src') !== src) img.setAttribute('src', src);
+  });
+}
+
 document.addEventListener('click', (e) => {
   const t = e.target.closest('[data-a]');
   if (t) {
@@ -71,6 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (pf.theme) document.documentElement.setAttribute('data-theme', pf.theme);
   document.querySelectorAll('[data-i]').forEach((e) => (e.innerHTML = ic(e.dataset.i, +e.dataset.s || 20)));
 
+  try {
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) mq.addEventListener('change', updateLogo);
+    else if (mq.addListener) mq.addListener(updateLogo);
+  } catch (e) {}
+
   (async () => {
     try {
       await loadFromSupabase();
@@ -82,12 +98,15 @@ document.addEventListener('DOMContentLoaded', () => {
       try { await IMG.migrateLegacy(); } catch (e) { }
       S.cat = pf.cat || 'Todos'; S.srt = pf.srt || 'feat'; if (so) so.value = S.srt;
       render();
+      updateLogo();
       setTimeout(openFromHash, 60);
     } catch (err) {
       console.error('Falha na inicialização:', err);
       toast('Erro ao carregar a loja. Recarregue a página.');
     }
   })();
+
+  updateLogo();
 
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { }
 });
