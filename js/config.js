@@ -1,4 +1,3 @@
-$config = @'
 const V = 12, PFX = 'impacto_', KEY = {
   prod: PFX + 'products', cart: PFX + 'cart', ads: PFX + 'ads', cats: PFX + 'cats',
   set: PFX + 'settings', meta: PFX + 'meta', pref: PFX + 'prefs', draft: PFX + 'draft',
@@ -6,11 +5,11 @@ const V = 12, PFX = 'impacto_', KEY = {
   chg: PFX + 'chg', pub: PFX + 'pub', log: PFX + 'log'
 };
 
-/* ---- COLE AQUI OS DADOS DO SUPABASE (Impacto) ---- */
+/* ---- DADOS DO SUPABASE (Impacto) ---- */
 const SB_URL = 'https://rkrqqreogrkhvfacaqdg.supabase.co';
 const SB_KEY = 'sb_publishable_n9lkB2JjH_a1d2hr3GgiyA_xMJ1BAgF';
 
-/* ---- GITHUB ---- */
+/* ---- DADOS DO GITHUB ---- */
 const GH_OWNER = 'wendell544';
 const GH_REPO = 'ImpactoLoja';
 
@@ -146,5 +145,3 @@ const ads0 = () => [
 ];
 
 const SB = supabase.createClient(SB_URL, SB_KEY);
-'@
-[IO.File]::WriteAllText("$pwd\js\config.js", $config, $Utf8NoBom)
