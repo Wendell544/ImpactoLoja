@@ -195,8 +195,10 @@ ACT.share=async id=>{
 };
 ACT.theme=()=>{
   const r=document.documentElement;
-  const d=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
-  r.dataset.theme=d?'light':'dark';Prefs.set({theme:r.dataset.theme})
+  const current = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = current === 'dark' ? 'light' : 'dark';
+  r.setAttribute('data-theme', next);
+  Prefs.set({theme: next});
 };
 ACT.fin=(v,a,e)=>{
   const L=lines(),n=$('nm').value.trim(),d=$('addr').value.trim(),er=$('cerr');

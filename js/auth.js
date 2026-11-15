@@ -1,4 +1,3 @@
-/* Autenticação via Supabase Auth (e-mail + senha). */
 const Auth = (() => {
   async function login(email, password) {
     const { data, error } = await SB.auth.signInWithPassword({ email, password });
@@ -10,15 +9,7 @@ const Auth = (() => {
     }
     return { st: 'ok' };
   }
-
-  async function logout() {
-    await SB.auth.signOut();
-  }
-
-  async function getSession() {
-    const { data } = await SB.auth.getSession();
-    return data.session;
-  }
-
+  async function logout() { await SB.auth.signOut(); }
+  async function getSession() { const { data } = await SB.auth.getSession(); return data.session; }
   return { login, logout, getSession };
 })();

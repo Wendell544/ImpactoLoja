@@ -1,42 +1,32 @@
-const V = 12, PFX = 'godeiro_', KEY = {
-  prod: PFX + 'products',
-  cart: PFX + 'cart',
-  ads: PFX + 'ads',
-  cats: PFX + 'cats',
-  set: PFX + 'settings',
-  meta: PFX + 'meta',
-  pref: PFX + 'prefs',
-  draft: PFX + 'draft',
-  pw: PFX + 'k2',
-  lock: PFX + 'lock',
-  hist: PFX + 'hist',
-  adm: PFX + 'adm',
-  chg: PFX + 'chg',
-  pub: PFX + 'pub',
-  log: PFX + 'log'
+$config = @'
+const V = 12, PFX = 'impacto_', KEY = {
+  prod: PFX + 'products', cart: PFX + 'cart', ads: PFX + 'ads', cats: PFX + 'cats',
+  set: PFX + 'settings', meta: PFX + 'meta', pref: PFX + 'prefs', draft: PFX + 'draft',
+  pw: PFX + 'k2', lock: PFX + 'lock', hist: PFX + 'hist', adm: PFX + 'adm',
+  chg: PFX + 'chg', pub: PFX + 'pub', log: PFX + 'log'
 };
 
-/* ---- COLE AQUI OS DADOS DO NOVO SUPABASE (Godeiro) ---- */
-const SB_URL = 'COLE_AQUI_A_URL_DO_SUPABASE_DA_GODEIRO';
-const SB_KEY = 'COLE_AQUI_A_CHAVE_ANON_DO_SUPABASE';
+/* ---- COLE AQUI OS DADOS DO SUPABASE (Impacto) ---- */
+const SB_URL = 'https://rkrqqreogrkhvfacaqdg.supabase.co';
+const SB_KEY = 'sb_publishable_n9lkB2JjH_a1d2hr3GgiyA_xMJ1BAgF';
 
-/* ---- COLE AQUI OS DADOS DO NOVO GITHUB ---- */
+/* ---- GITHUB ---- */
 const GH_OWNER = 'wendell544';
-const GH_REPO = 'GodeiroLoja';
+const GH_REPO = 'ImpactoLoja';
 
 /* ---- DADOS DA LOJA ---- */
 const WAD = ['5583', '99999', '9999'].join(''); // Coloque o WhatsApp real
 const CATS0 = ['Camisas', 'Polos', 'Calças', 'Bermudas', 'Calçados', 'Acessórios'];
 
 const SET0 = {
-  kick: 'Brejo do Cruz e São Bento - PB',
-  title: 'Mais de 7 Anos no Mercado da Moda',
-  text: 'Enviamos para todo o Brasil. Encontre as melhores peças masculinas e finalize no WhatsApp.',
-  about: 'No mercado há mais de 7 anos. Lojas físicas em Brejo do Cruz-PB e São Bento-PB.',
+  kick: 'São Bento - PB',
+  title: 'Estilo e Atitude para o Seu Dia a Dia',
+  text: 'Moda masculina com as melhores marcas. Escolha suas peças favoritas e finalize seu pedido direto no WhatsApp.',
+  about: 'Moda masculina para você, no seu estilo!',
   wa: WAD,
   email: '',
-  addr: 'Brejo do Cruz - PB',
-  ig: 'godeiroimports1',
+  addr: 'São Bento - PB',
+  ig: 'impactoloja.sb',
   fb: '',
   sec: 6,
   page: 12,
@@ -123,16 +113,12 @@ const art = (h) =>
       h +
       ',28%,26%)"/><stop offset="1" stop-color="hsl(' +
       h +
-      ',22%,8%)"/></radialGradient></defs><rect width="400" height="400" fill="url(#g)"/><g fill="none" stroke="#e11d48" stroke-width="3" stroke-linejoin="round"><path d="M140 150h120l40 50-100 110-100-110z"/></g><text x="200" y="365" text-anchor="middle" font-family="sans-serif" font-size="20" letter-spacing="6" fill="#e11d48" opacity=".7">GODEIRO</text></svg>',
+      ',22%,8%)"/></radialGradient></defs><rect width="400" height="400" fill="url(#g)"/><g fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"><path d="M140 150h120l40 50-100 110-100-110z"/></g><text x="200" y="365" text-anchor="middle" font-family="sans-serif" font-size="20" letter-spacing="6" fill="#fff" opacity=".7">IMPACTO</text></svg>',
   );
 
 const seed = () => [
   ['Camiseta Oversized Premium', 'Camisas', 89.9, 69.9, '3x sem juros', 'Algodão de alta qualidade com modelagem confortável.', 1, 215],
-  ['Calça Cargo Tactel', 'Calças', 159.9, 0, '5x sem juros', 'Calça cargo resistente, ideal para o dia a dia.', 1, 42],
-  ['Bermuda Sarja Slim', 'Bermudas', 109.9, 89.9, '3x sem juros', 'Tecido leve com elastano. Perfeita para o calor.', 0, 225],
-  ['Camisa Polo Basic', 'Polos', 129.9, 0, '4x sem juros', 'Polo clássica em piquet. Elegância e conforto.', 0, 335],
-  ['Tênis Casual Urbano', 'Calçados', 249.9, 199.9, '6x sem juros', 'Design moderno e solado confortável.', 0, 200],
-  ['Boné Aba Reta Snapback', 'Acessórios', 59.9, 0, '2x sem juros', 'Aba reta com ajuste traseiro. Estilo streetwear.', 1, 275]
+  ['Calça Cargo Tactel', 'Calças', 159.9, 0, '5x sem juros', 'Calça cargo resistente, ideal para o dia a dia.', 1, 42]
 ].map((a, i) => ({
   id: i + 1,
   title: a[0],
@@ -160,3 +146,5 @@ const ads0 = () => [
 ];
 
 const SB = supabase.createClient(SB_URL, SB_KEY);
+'@
+[IO.File]::WriteAllText("$pwd\js\config.js", $config, $Utf8NoBom)
