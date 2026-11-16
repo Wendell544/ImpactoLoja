@@ -155,7 +155,7 @@ async function upRun0(files, isBanner) {
 async function upP(files) {
   if (!files.length) return;
   const room = 12 - A.imgs.length; if (room <= 0) { toast('Limite de 12 fotos por produto.'); return; }
-  const r = await upRun(files.slice(0, room), false);
+  const r = await upRun(files.slice(0, room), false); 
   r.refs.forEach((x) => { if (!A.imgs.some((y) => (R(y)?.u || '') === x.u)) A.imgs.push(x); });
   if (r.refs.length) A.sel = A.imgs.length - 1;
   phs(); drs();
@@ -163,13 +163,13 @@ async function upP(files) {
 
 async function upM(files) {
   if (!files.length) return;
-  const r = await upRun([files[0]], true);
+  const r = await upRun([files[0]], true); 
   if (r.refs[0]) { A.m.img = r.refs[0].u; mpv(); }
 }
 
 async function upSet(files) {
   if (!files.length) return;
-  const r = await upRun([files[0]], true);
+  const r = await upRun([files[0]], true); 
   if (r.refs[0]) { A.setBg = r.refs[0].u; setpv(); }
 }
 
@@ -188,11 +188,11 @@ async function saveP() {
   A.edit = null; A.imgs = []; A.sel = 0; Draft.clear(); render(); show(0); toast('Produto salvo.');
 }
 
-const mpv = () => { const e = $('mpv'); if (!e) return; e.innerHTML = A.m.img ? IMG.html({ u: A.m.img }, { s: 'thumb' }) : '<span class="sm tm">Sem imagem</span>'; };
-const setpv = () => { const e = $('setpv'); if (!e) return; e.innerHTML = A.setBg ? IMG.html({ u: A.setBg }, { s: 'thumb' }) : '<span class="sm tm">Sem imagem</span>'; };
+const mpv = () => { const e = $('mpv'); if (e) e.innerHTML = A.m.img ? IMG.html({ u: A.m.img }, { s: 'thumb' }) : '<span class="sm tm">Sem imagem</span>'; };
+const setpv = () => { const e = $('setpv'); if (e) e.innerHTML = A.setBg ? IMG.html({ u: A.setBg }, { s: 'thumb' }) : '<span class="sm tm">Sem imagem</span>'; };
 
 function fillM(x) {
-  MG[A.m.k].f.forEach(([f, l, type]) => { const e = $('mf-' + f); if (!e) return; e.value = x[f] !== undefined && x[f] !== null ? x[f] : (type === 'select' ? 'horizontal' : ''); });
+  MG[A.m.k].f.forEach(([f, l, type]) => { const e = $('mf-' + f); if (e) e.value = x[f] !== undefined && x[f] !== null ? x[f] : (type === 'select' ? 'horizontal' : ''); });
   $('mf-on').checked = x.on !== false; A.m.img = x.img?.u || x.img || null;
 }
 
@@ -201,14 +201,23 @@ function tMgr(k) {
   return `<section class="sf br box">
     <h3 class="serif h3">${A.m.id ? 'Editar' : 'Novo'}: ${m.t}</h3>${m.h ? `<p class="sm tm">${m.h}</p>` : ''}
     <div class="fm">
-      ${m.f.map(([f, l, type, opts]) => { if (type === 'select') { return `<label class="lb">${l}<select class="in" id="mf-${f}">${opts.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('')}</select></label>`; } return F('mf-' + f, l, 'maxlength=140'); }).join('')}
+      ${m.f.map(([f, l, type, opts]) => { if (type === 'select') return `<label class="lb">${l}<select class="in" id="mf-${f}">${opts.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('')}</select></label>`; return F('mf-' + f, l, 'maxlength=140'); }).join('')}
       <label class="chk"><input type="checkbox" id="mf-on" checked>${m.on}</label>
-      <div class="full col"><div class="lb">Imagem</div><div class="row wrap"><span class="th big br" id="mpv"></span><label class="b ghost">Enviar imagem<input class="hid" id="mf-file" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="b ghost" data-a="mimgx">Remover imagem</button></div>${UP}</div>
+      <div class="full col"><div class="lb">Imagem</div>
+        <div class="row wrap"><span class="th big br" id="mpv"></span><label class="b ghost">Enviar imagem<input class="hid" id="mf-file" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="b ghost" data-a="mimgx">Remover imagem</button></div>${UP}
+      </div>
     </div>
     <div class="row"><button class="b gold" data-a="msave" data-v="${k}">Salvar</button><button class="b ghost" data-a="mnew" data-v="${k}">Novo</button></div>
   </section>
-  <section class="sf br box"><div class="row sp wrap"><h3 class="serif h3">${m.t} cadastrados</h3><input class="in" data-a="msearch" data-v="${k}" placeholder="Buscar" value="${esc(A['q_' + k] || '')}" style="max-width:220px"></div>
-    ${Lf.map((x) => `<div class="ar"><span class="th br">${x.img ? IMG.html({ u: x.img.u || x.img }, { s: 'thumb' }) : ''}</span><div class="grow"><b>${esc(x.title || x.name || '(sem título)')}</b><div class="sm tm">${x.on ? 'Ativo' : 'Pausado'} ${x.layout === 'vertical' ? '· Vertical' : x.layout === 'auto' ? '· Adaptável' : ''}</div></div><div class="row wrap"><button class="b ghost" data-a="medit" data-v="${k}:${x.id}">Editar</button><button class="b ghost" data-a="mup" data-v="${k}:${x.id}" aria-label="Subir">↑</button><button class="b ghost" data-a="mdn" data-v="${k}:${x.id}" aria-label="Descer">↓</button><button class="b ghost" data-a="mtog" data-v="${k}:${x.id}">${x.on ? 'Pausar' : 'Ativar'}</button><button class="b ghost${A.del === k + x.id ? ' dng' : ''}" data-a="mdel" data-v="${k}:${x.id}">${A.del === k + x.id ? 'Confirmar?' : 'Excluir'}</button></div></div>`).join('') || '<p class="tm">Nada cadastrado.</p>'}
+  <section class="sf br box">
+    <div class="row sp wrap"><h3 class="serif h3">${m.t} cadastrados</h3><input class="in" data-a="msearch" data-v="${k}" placeholder="Buscar" value="${esc(A['q_' + k] || '')}" style="max-width:220px"></div>
+    ${Lf.map((x) => `<div class="ar">
+      <span class="th br">${x.img ? IMG.html({ u: x.img.u || x.img }, { s: 'thumb' }) : ''}</span>
+      <div class="grow"><b>${esc(x.title || x.name || '(sem título)')}</b><div class="sm tm">${x.on ? 'Ativo' : 'Pausado'} ${x.layout === 'vertical' ? '· Vertical' : x.layout === 'auto' ? '· Adaptável' : ''}</div></div>
+      <div class="row wrap">
+        <button class="b ghost" data-a="medit" data-v="${k}:${x.id}">Editar</button><button class="b ghost" data-a="mup" data-v="${k}:${x.id}">↑</button><button class="b ghost" data-a="mdn" data-v="${k}:${x.id}">↓</button><button class="b ghost" data-a="mtog" data-v="${k}:${x.id}">${x.on ? 'Pausar' : 'Ativar'}</button>
+        <button class="b ghost${A.del === k + x.id ? ' dng' : ''}" data-a="mdel" data-v="${k}:${x.id}">${A.del === k + x.id ? 'Confirmar?' : 'Excluir'}</button>
+      </div></div>`).join('') || '<p class="tm">Nada cadastrado.</p>'}
   </section>`;
 }
 
@@ -217,8 +226,11 @@ function tSet() {
   return `<section class="sf br box">
     <h3 class="serif h3">Aparência e informações da loja</h3>
     <div class="fm">${SF.map(([k, l, t]) => t === 'ta' ? `<label class="lb full">${l}<textarea class="in" id="sf-${k}" rows="3">${esc(s[k])}</textarea></label>` : `<label class="lb">${l}<input class="in" id="sf-${k}" ${t === 'n' ? 'type=number ' : ''}value="${esc(s[k])}"></label>`).join('')}
-    <div class="full col" style="margin-top:8px"><div class="lb">Imagem de Fundo do Hero (Opcional)</div><div class="row wrap"><span class="th big br" id="setpv"></span><label class="b ghost">Enviar imagem<input class="hid" id="sf-file" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="b ghost" data-a="simgx">Remover imagem</button></div>${UP}</div>
-    </div>
+    
+    <div class="full col" style="margin-top:8px">
+      <div class="lb">Imagem de Fundo do Hero (Opcional)</div>
+      <div class="row wrap"><span class="th big br" id="setpv"></span><label class="b ghost">Enviar imagem<input class="hid" id="sf-file" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="b ghost" data-a="simgx">Remover imagem</button></div>${UP}
+    </div></div>
     <h4 class="serif h3">Seções da loja</h4>
     <div class="row wrap" style="gap:4px 16px">${SH.map(([k, l]) => `<label class="chk"><input type="checkbox" id="ss-${k}"${s.show[k] ? ' checked' : ''}>${l}</label>`).join('')}</div>
     <div class="row"><button class="b gold" data-a="sset">Salvar</button></div>
@@ -234,7 +246,7 @@ const tPw = () => `<section class="sf br box">
   <div id="pwo" class="col"></div>
   <hr style="border:0;border-top:1px solid var(--bd);margin:16px 0">
   <h4 class="serif h3">Manutenção</h4>
-  <p class="sm tm">Remove do GitHub os arquivos não referenciados.</p>
+  <p class="sm tm">Remove do GitHub os arquivos <code>img/i_*.webp</code> que não estão referenciados.</p>
   <button class="b ghost" data-a="cleanup">Limpar imagens órfãs do GitHub</button>
   <pre id="cleanup-out" class="sm tm" style="white-space:pre-wrap;margin-top:8px"></pre>
 </section>`;
@@ -249,8 +261,7 @@ const mv = async (v, d) => {
 
 ACT.admin = () => (A.ok ? enter() : modal('lg', 1));
 ACT.login = async () => {
-  const e = $('pe'); e.classList.add('hid');
-  const email = $('em').value.trim(), pass = $('pw').value;
+  const e = $('pe'); e.classList.add('hid'); const email = $('em').value.trim(), pass = $('pw').value;
   if (!email || !pass) { e.textContent = 'Informe e-mail e senha.'; e.classList.remove('hid'); return; }
   const r = await Auth.login(email, pass);
   if (r.st === 'ok') { $('pw').value = ''; await enter(); return; }
@@ -268,8 +279,7 @@ ACT.pph = (v) => {
   phs(); drs();
 };
 ACT.purl = () => {
-  const u = $('pf-url').value.trim();
-  if (!okUrl(u)) { toast('Cole um link que comece com http:// ou https://'); return; }
+  const u = $('pf-url').value.trim(); if (!okUrl(u)) { toast('Cole um link que comece com http:// ou https://'); return; }
   if (A.imgs.length >= 12) { toast('Limite de 12 fotos.'); return; }
   A.imgs.push({ u }); $('pf-url').value = ''; A.sel = A.imgs.length - 1; phs(); drs();
 };
@@ -277,15 +287,16 @@ ACT.psave = saveP;
 ACT.pc = () => { A.edit = null; A.imgs = []; A.sel = 0; Draft.clear(); show(0); };
 ACT.pedit = (id) => {
   const p = DB.prod.find((x) => x.id == id); if (!p) return;
-  A.edit = p.id; A.imgs = (p.images || []).map((r) => (typeof r === 'string' ? { u: r } : r)); A.sel = 0; show(0);
-  fillP({ title: p.title, cat: p.category, price: p.price, promo: p.promo || '', inst: p.installment || '', desc: p.description || '', feat: p.featured, av: p.available !== false });
+  A.edit = p.id; A.imgs = (p.images || []).map((r) => (typeof r === 'string' ? { u: r } : r)); A.sel = 0;
+  show(0); fillP({ title: p.title, cat: p.category, price: p.price, promo: p.promo || '', inst: p.installment || '', desc: p.description || '', feat: p.featured, av: p.available !== false });
   $('adm').scrollTo({ top: 0, behavior: 'smooth' });
 };
 ACT.pdup = async (id) => {
   const p = DB.prod.find((x) => x.id == id); if (!p) return;
   const { id: _omit, created_at: _c, updated_at: _u, ...rest } = p;
   const { data, error } = await SB.from('products').insert({ ...rest, title: p.title + ' (cópia)', featured: false, images: p.images || [] }).select().single();
-  if (error) return toast(errMsg(error)); DB.prod.splice(DB.prod.findIndex(x => x.id == id) + 1, 0, data); render(); plist(); toast('Produto duplicado.');
+  if (error) return toast(errMsg(error));
+  DB.prod.splice(DB.prod.findIndex(x => x.id == id) + 1, 0, data); render(); plist(); toast('Produto duplicado.');
 };
 const pmv = async (id, d) => {
   const i = DB.prod.findIndex((x) => x.id == id), j = i + d; if (i < 0 || j < 0 || j >= DB.prod.length) return;
@@ -296,8 +307,8 @@ const pmv = async (id, d) => {
 ACT.pup = (id) => pmv(id, -1); ACT.pdn = (id) => pmv(id, 1);
 ACT.pdel = async (id) => {
   if (A.del === 'p' + id) {
-    const { error } = await SB.from('products').delete().eq('id', id);
-    if (error) return toast(errMsg(error)); A.del = null; DB.prod = DB.prod.filter(x => x.id != id); render(); show(0); toast('Produto excluído.');
+    const { error } = await SB.from('products').delete().eq('id', id); if (error) return toast(errMsg(error));
+    A.del = null; DB.prod = DB.prod.filter(x => x.id != id); render(); show(0); toast('Produto excluído.');
   } else { A.del = 'p' + id; plist(); }
 };
 ACT.pmore = () => { A.pl += 20; plist(); };
@@ -308,13 +319,11 @@ ACT.mnew = (k) => { A.m = { k, id: null, img: null }; show(A.tab); };
 ACT.mimgx = () => { A.m.img = null; mpv(); };
 ACT.simgx = () => { A.setBg = null; setpv(); };
 ACT.msave = async (k) => {
-  const m = MG[k], o = { on: $('mf-on').checked }; m.f.forEach(([f]) => (o[f] = $('mf-' + f).value.trim()));
-  if (A.m.img) o.img = { u: A.m.img };
-  if (k === 'categories') {
-    if (!o.name) return toast('Informe o nome da categoria.');
-    if (DB.categories.some((c) => c.id !== A.m.id && nz(c.name) === nz(o.name))) return toast('Já existe uma categoria com esse nome.');
-  } else if (!o.title && !o.img) return toast('Informe um título ou envie uma imagem.');
+  const m = MG[k], o = { on: $('mf-on').checked }; m.f.forEach(([f]) => (o[f] = $('mf-' + f).value.trim())); if (A.m.img) o.img = { u: A.m.img };
+  if (k === 'categories') { if (!o.name) return toast('Informe o nome da categoria.'); if (DB.categories.some((c) => c.id !== A.m.id && nz(c.name) === nz(o.name))) return toast('Já existe uma categoria com esse nome.'); }
+  else if (!o.title && !o.img) { return toast('Informe um título ou envie uma imagem.'); }
   if (o.link && !okUrl(o.link)) return toast('O link deve começar com http:// ou https://');
+
   if (A.m.id) {
     const { data, error } = await SB.from(k).update(o).eq('id', A.m.id).select().single();
     if (error) return toast(errMsg(error)); DB[k] = DB[k].map((x) => x.id === A.m.id ? data : x);
@@ -331,13 +340,11 @@ ACT.mdel = async (v) => {
   if (k === 'categories' && DB.prod.some((p) => p.category === x.name)) return toast('Mova ou exclua os produtos desta categoria antes.');
   if (A.del === key) {
     await SB.from(k).delete().eq('id', id); A.del = null; DB[k] = DB[k].filter((y) => y.id != id);
-    if (A.m && A.m.id == id) A.m = { k, id: null, img: null };
-    render(); show(A.tab); toast('Excluído.');
+    if (A.m && A.m.id == id) A.m = { k, id: null, img: null }; render(); show(A.tab); toast('Excluído.');
   } else { A.del = key; show(A.tab); }
 };
 ACT.msearch = (v, el, e) => {
-  if (e || !el || el.tagName !== 'INPUT') return;
-  A['q_' + v] = el.value;
+  if (e || !el || el.tagName !== 'INPUT') return; A['q_' + v] = el.value;
   const p = el.selectionStart, f = MG[v].f.map(([k]) => [k, $('mf-' + k).value]), on = $('mf-on').checked;
   show(A.tab); f.forEach(([k, x]) => ($('mf-' + k).value = x)); $('mf-on').checked = on;
   const n = document.querySelector('[data-a=msearch]'); n.focus(); n.setSelectionRange(p, p);
@@ -348,54 +355,54 @@ ACT.sset = async () => {
   if (v('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))) return toast('E-mail inválido.');
   if (v('fb') && !okUrl(v('fb'))) return toast('O link do Facebook deve começar com https://');
   if (ig && !/^[\w.]{1,30}$/.test(ig)) return toast('Instagram inválido. Use só o nome de usuário.');
-  const data = { ...s, kick: v('kick').slice(0, 60), title: v('title').slice(0, 120) || SET0.title, text: v('text').slice(0, 300), about: v('about').slice(0, 400), wa: w || WAD, email: v('email'), addr: v('addr').slice(0, 120), ig, fb: v('fb'), sec: n('sec', 2, 30), page: n('page', 4, 48), mb: n('mb', 1, 5), hero_bg: A.setBg ? { u: A.setBg } : null, show: Object.fromEntries(SH.map(([k]) => [k, $('ss-' + k)?.checked ? 1 : 0])) };
+
+  const data = {
+    ...s, kick: v('kick').slice(0, 60), title: v('title').slice(0, 120) || SET0.title, text: v('text').slice(0, 300), about: v('about').slice(0, 400),
+    wa: w || WAD, email: v('email'), addr: v('addr').slice(0, 120), ig, fb: v('fb'),
+    sec: n('sec', 2, 30), page: n('page', 4, 48), mb: n('mb', 1, 5),
+    hero_bg: A.setBg ? { u: A.setBg } : null, show: Object.fromEntries(SH.map(([k]) => [k, $('ss-' + k)?.checked ? 1 : 0]))
+  };
   const { error } = await SB.from('settings').upsert({ id: 1, data });
   if (error) return toast(errMsg(error)); DB.set = data; render(); toast('Configurações salvas.');
 };
-ACT.spw = async () => {
-  const v = $('np').value; if (v.length < 8) return toast('Use 8 caracteres ou mais.');
-  const { error } = await SB.auth.updateUser({ password: v });
-  if (error) return toast(errMsg(error)); $('np').value = ''; toast('Senha alterada com sucesso.');
-};
+ACT.spw = async () => { const v = $('np').value; if (v.length < 8) return toast('Use 8 caracteres ou mais.'); const { error } = await SB.auth.updateUser({ password: v }); if (error) return toast(errMsg(error)); $('np').value = ''; toast('Senha alterada com sucesso.'); };
 
 ACT.cleanup = async () => {
-  const out = $('cleanup-out');
-  out.textContent = 'Limpando…';
-  const session = await Auth.getSession();
-  if (!session) return toast('Sessão expirada. Faça login novamente.');
-
-  const res = await fetch(`${SB_URL}/functions/v1/cleanup-orphans`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${session.access_token}` }
-  });
-  let body;
+  const out = $('cleanup-out'); out.textContent = 'Limpando…';
+  const session = await Auth.getSession(); if (!session) return toast('Sessão expirada. Faça login novamente.');
+  
   try {
-    body = await res.json();
-  } catch (e) {
-    out.textContent = 'Resposta inválida.';
-    return;
+    const res = await fetch(`${SB_URL}/functions/v1/cleanup-orphans`, { 
+        method: 'POST', 
+        headers: { Authorization: `Bearer ${session.access_token}` } 
+    });
+    let body; 
+    try { body = await res.json(); } catch (e) { out.textContent = 'Resposta inválida.'; return; }
+    
+    if (!res.ok) { 
+        if(res.status===401) {
+            out.textContent = 'Sessão expirada. Faça logout e login novamente.';
+        } else {
+            out.textContent = 'Erro: ' + (body.error || res.status); 
+        }
+        return; 
+    }
+    out.textContent = `Removidos: ${body.removed?.length ?? 0} · Mantidos: ${body.kept ?? 0} · Total: ${body.total ?? 0}\n` + (body.removed?.length ? body.removed.join('\n') : 'Nenhum órfão encontrado.');
+  } catch (error) {
+      out.textContent = 'Falha na conexão. Verifique se a função cleanup-orphans está com Verify JWT desligado no Supabase.';
   }
-  if (!res.ok) {
-    out.textContent = 'Erro: ' + (body.error || res.status);
-    return;
-  }
-  out.textContent =
-    `Removidos: ${body.removed?.length ?? 0} · Mantidos: ${body.kept ?? 0} · Total: ${body.total ?? 0}\n` +
-    (body.removed?.length ? body.removed.join('\n') : 'Nenhum órfão encontrado.');
 };
 
 ACT.bk = () => {
-  const r = confirm('OK = Baixar backup. Cancelar = Restaurar de um arquivo.');
-  if (r) { Backup.download(); return; }
+  const r = confirm('OK = Baixar backup. Cancelar = Restaurar de um arquivo.'); if (r) { Backup.download(); return; }
   const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/json';
   inp.onchange = async () => {
     const f = inp.files[0]; if (!f) return;
-    try { if (!confirm('Substituir TODOS os dados atuais pelos do backup?')) return; await Backup.load(f); render(); show(A.tab); toast('Dados restaurados.'); }
-    catch (e) { toast('Arquivo inválido.'); }
+    try { if (!confirm('Substituir TODOS os dados atuais pelos do backup?')) return; await Backup.load(f); render(); show(A.tab); toast('Dados restaurados.'); } catch (e) { toast('Arquivo inválido.'); }
   };
   inp.click();
 };
-const pst = () => { const e = $('pst'); if (!e) return; e.textContent = 'Salvamento automático no Supabase. As imagens são versionadas no GitHub.'; };
+const pst = () => { const e = $('pst'); if (e) e.textContent = 'Salvamento automático no Supabase. As imagens são versionadas no GitHub.'; };
 const errLog = () => {
   const l = Log.get().slice(0, 6);
   return `<details class="sm tm"><summary>Erros recentes (${l.length})</summary>${l.map((x) => `<p>${new Date(x.t).toLocaleString('pt-BR')} · ${esc(x.m)}</p>`).join('') || '<p>Nenhum erro registrado.</p>'}</details>`;
