@@ -7,9 +7,8 @@ const CORS = {
 };
 
 Deno.serve(async (req) => {
-  // Responde ao preflight do navegador com 204 (evita erro de CORS)
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS });
+    return new Response('ok', { headers: CORS });
   }
 
   if (req.method !== 'POST') {
@@ -25,7 +24,6 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // Valida o token usando a chave de Admin (mais seguro)
     const { data: userData, error: userError } = await adminClient.auth.getUser(token);
     if (userError || !userData?.user) return json({ error: 'Sessão expirada.' }, 401);
     if (userData.user.app_metadata?.role !== 'admin') return json({ error: 'Acesso negado.' }, 403);
@@ -86,5 +84,8 @@ Deno.serve(async (req) => {
 });
 
 function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify(body), { 
+    status, 
+    headers: { ...CORS, 'Content-Type': 'application/json' } 
+  });
 }
