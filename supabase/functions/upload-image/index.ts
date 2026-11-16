@@ -9,24 +9,21 @@ const CORS = {
 const MAX_BYTES = 5 * 1024 * 1024;
 
 Deno.serve(async (req) => {
-  // Garante que o navegador consiga fazer o OPTIONS
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS });
   }
 
-  try {
-    if (req.method !== 'POST') {
-      return json({ error: 'Método não permitido.' }, 405);
-    }
+  if (req.method !== 'POST') {
+    return json({ error: 'Método não permitido.' }, 405);
+  }
 
+  try {
     const authHeader = req.headers.get('Authorization') ?? '';
     const token = authHeader.replace(/^Bearer\s+/i, '');
     if (!token) return json({ error: 'Token ausente.' }, 401);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    if (!supabaseUrl || !serviceRoleKey) return json({ error: 'Faltam variáveis de ambiente do Supabase.' }, 500);
-
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
     const { data: userData, error: userError } = await adminClient.auth.getUser(token);
     
@@ -44,13 +41,12 @@ Deno.serve(async (req) => {
     const fileName = `i_${hashHex}.webp`;
     const path = `img/${fileName}`;
 
-    const ghToken = Deno.env.get('GITHUB_TOKEN');
+    const ghToken = Deno.env.get('GITHUB_TOKEN') ?? '';
     const owner = Deno.env.get('GITHUB_OWNER') ?? 'wendell544';
     const repo = Deno.env.get('GITHUB_REPO') ?? 'ImpactoLoja';
     const branch = Deno.env.get('GITHUB_BRANCH') ?? 'main';
 
-    // SE O TOKEN DO GITHUB ESTIVER FALTANDO, ELE RETORNA ERRO LIMPO (SEM QUEBRAR CORS)
-    if (!ghToken) return json({ error: 'GITHUB_TOKEN não configurado nos secrets do Supabase.' }, 500);
+    if (!ghToken) return json({ error: 'GITHUB_TOKEN não configurado nos secrets.' }, 500);
 
     const ghHeaders = {
       Authorization: `Bearer ${ghToken}`,
