@@ -372,7 +372,7 @@ ACT.cleanup = async () => {
   const session = await Auth.getSession(); if (!session) return toast('Sessão expirada. Faça login novamente.');
   
   try {
-    const res = await fetch(`${SB_URL}/functions/v1/cleanup-orphans`, { 
+    const res = await fetch(`${SB_URL}/functions/v1/https://ncrsodkpduroulzkpaky.supabase.co/functions/v1/cleanup-orphans`, { 
         method: 'POST', 
         headers: { Authorization: `Bearer ${session.access_token}` } 
     });
