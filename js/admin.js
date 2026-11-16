@@ -164,13 +164,13 @@ async function upP(files) {
 async function upM(files) {
   if (!files.length) return;
   const r = await upRun([files[0]], true);
-  if (r.refs[0]) { A.m.img = r.refs[0]; mpv(); }
+  if (r.refs[0]) { A.m.img = r.refs[0]; mpv(); } // Salva o objeto completo com a prévia local
 }
 
 async function upSet(files) {
   if (!files.length) return;
   const r = await upRun([files[0]], true);
-  if (r.refs[0]) { A.setBg = r.refs[0]; setpv(); }
+  if (r.refs[0]) { A.setBg = r.refs[0]; setpv(); } // Salva o objeto completo com a prévia local
 }
 
 async function saveP() {
@@ -328,7 +328,7 @@ ACT.mimgx = () => { A.m.img = null; mpv(); };
 ACT.simgx = () => { A.setBg = null; setpv(); };
 ACT.msave = async (k) => {
   const m = MG[k], o = { on: $('mf-on').checked }; m.f.forEach(([f]) => (o[f] = $('mf-' + f).value.trim()));
-  if (A.m.img) o.img = { u: R(A.m.img).u };
+  if (A.m.img) o.img = { u: R(A.m.img).u }; // Salva apenas a URL no banco
   if (k === 'categories') { if (!o.name) return toast('Informe o nome da categoria.'); if (DB.categories.some((c) => c.id !== A.m.id && nz(c.name) === nz(o.name))) return toast('Já existe uma categoria com esse nome.'); }
   else if (!o.title && !o.img) { return toast('Informe um título ou envie uma imagem.'); }
   if (o.link && !okUrl(o.link)) return toast('O link deve começar com http:// ou https://');
