@@ -7,6 +7,7 @@ const CORS = {
 };
 
 Deno.serve(async (req) => {
+  // ESSA LINHA É A MAIS IMPORTANTE PARA O CORS
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS });
   }
@@ -89,6 +90,11 @@ Deno.serve(async (req) => {
   } catch (e: any) {
     return json({ error: `Erro inesperado: ${e.message}` }, 500);
   }
+});
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
+}
 });
 
 function json(body: unknown, status = 200) {
