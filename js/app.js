@@ -69,7 +69,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const pf = Prefs.get();
   if (pf.theme) document.documentElement.setAttribute('data-theme', pf.theme);
+  
+  // Inicializa os ícones
   document.querySelectorAll('[data-i]').forEach((e) => (e.innerHTML = ic(e.dataset.i, +e.dataset.s || 20)));
+
+  // Corrige o ícone inicial do botão de tema (Lua/Sol)
+  const themeBtn = document.querySelector('[data-a="theme"]');
+  if (themeBtn) {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    themeBtn.innerHTML = ic(isDark ? 'sun' : 'moon', 18);
+  }
 
   (async () => {
     try {
