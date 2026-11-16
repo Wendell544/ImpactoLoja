@@ -9,17 +9,24 @@ const CORS = {
 const GITHUB_API = 'https://api.github.com';
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
-  if (req.method !== 'POST') return json({ error: 'Método não permitido.' }, 405);
+  // Responde ao preflight do navegador (CORS)
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: CORS });
+  }
+
+  if (req.method !== 'POST') {
+    return json({ error: 'Método não permitido.' }, 405);
+  }
 
   try {
     const authHeader = req.headers.get('Authorization') ?? '';
     const token = authHeader.replace(/^Bearer\s+/i, '');
     if (!token) return json({ error: 'Token ausente.' }, 401);
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
+    // Valida o token usando a chave Admin (mais seguro contra chaves anon antigas)
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
     const { data: userData, error: userError } = await adminClient.auth.getUser(token);
     
