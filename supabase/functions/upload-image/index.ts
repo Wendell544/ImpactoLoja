@@ -7,23 +7,26 @@ const CORS = {
 };
 
 const MAX_BYTES = 5 * 1024 * 1024;
-const GITHUB_API = 'https://api.github.com';
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
-  if (req.method !== 'POST') return json({ error: 'Método não permitido.' }, 405);
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: CORS });
+  }
+  if (req.method !== 'POST') {
+    return json({ error: 'Método não permitido.' }, 405);
+  }
 
   try {
     const authHeader = req.headers.get('Authorization') ?? '';
     const token = authHeader.replace(/^Bearer\s+/i, '');
     if (!token) return json({ error: 'Token ausente.' }, 401);
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
     const { data: userData, error: userError } = await adminClient.auth.getUser(token);
-    if (userError || !userData?.user) return json({ error: 'Sessão expirada. Faça login novamente.' }, 401);
+    if (userError || !userData?.user) return json({ error: 'Sessão expirada.' }, 401);
     if (userData.user.app_metadata?.role !== 'admin') return json({ error: 'Acesso negado.' }, 403);
 
     const formData = await req.formData();
@@ -37,7 +40,7 @@ Deno.serve(async (req) => {
     const fileName = `i_${hashHex}.webp`;
     const path = `img/${fileName}`;
 
-    const ghToken = Deno.env.get('GITHUB_TOKEN');
+    const ghToken = Deno.env.get('GITHUB_TOKEN') ?? '';
     const owner = Deno.env.get('GITHUB_OWNER') ?? 'wendell544';
     const repo = Deno.env.get('GITHUB_REPO') ?? 'ImpactoLoja';
     const branch = Deno.env.get('GITHUB_BRANCH') ?? 'main';
@@ -46,12 +49,12 @@ Deno.serve(async (req) => {
       Authorization: `Bearer ${ghToken}`,
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'Upload-Image',
+      'User-Agent': 'Impacto-Upload',
     };
 
     const publicUrl = `https://${owner}.github.io/${repo}/img/${fileName}`;
-    
-    const checkRes = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, { headers: ghHeaders });
+
+    const checkRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, { headers: ghHeaders });
     if (checkRes.ok) return json({ url: publicUrl, dup: true });
 
     let bin = '';
@@ -60,7 +63,7 @@ Deno.serve(async (req) => {
     }
     const base64 = btoa(bin);
 
-    const putRes = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/contents/${path}`, {
+    const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: 'PUT',
       headers: { ...ghHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: `upload: ${fileName}`, content: base64, branch }),
@@ -69,7 +72,7 @@ Deno.serve(async (req) => {
     if (!putRes.ok) return json({ error: `Erro no GitHub: ${putRes.status}` }, 502);
 
     return json({ url: publicUrl, dup: false });
-  } catch (e) {
+  } catch (e: any) {
     return json({ error: `Erro inesperado: ${e.message}` }, 500);
   }
 });
