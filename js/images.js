@@ -23,11 +23,13 @@ const IMG = (() => {
     const full = await optimize(s); 
     if (!full) throw new Error(`${f.name}: erro ao processar.`);
 
+    // Cria a URL temporária para a miniatura aparecer na hora
+    const localPreview = URL.createObjectURL(full);
     const k = 'i:' + (await hash(full)); 
-    if (URLS.has(k)) return { ref: { u: URLS.get(k), k }, dup: true };
     
-    // Garante que o token esteja atualizado e válido
-    await SB.auth.refreshSession();
+    if (URLS.has(k)) return { ref: { u: URLS.get(k), k, local: localPreview }, dup: true };
+    
+    await SB.auth.refreshSession(); // Garante token atualizado
     const session = await SB.auth.getSession(); 
     const token = session.data.session?.access_token; 
     if (!token) throw new Error('Faça login para enviar imagens.');
@@ -40,8 +42,8 @@ const IMG = (() => {
     
     if (!res.ok) throw new Error(body.error || `Falha no upload (${res.status}).`);
     
-    const ref = { u: body.url, k }; 
-    URLES.set(k, body.url); 
+    const ref = { u: body.url, k, local: localPreview }; 
+    URLS.set(k, body.url); // CORRIGIDO O TYPO AQUI (era URLES)
     return { ref, dup: !!body.dup };
   }
 
@@ -72,7 +74,17 @@ const IMG = (() => {
   }
 
   const PH = art(40);
-  const html = (r, o = {}) => { r = R(r); const alt = esc(o.alt || ''); const eager = o.eager ? ' fetchpriority="high"' : ''; const lazy = o.eager ? '' : ' loading="lazy"'; if (!r || (!r.u && !r.p)) return `<img src="${PH}" alt="${alt}" decoding="async"${eager}${lazy}>`; const src = r.u || ''; return `<img src="${esc(src)}" alt="${alt}" decoding="async"${eager}${lazy} onerror="this.onerror=null;this.src='${PH}';">`; };
+  const html = (r, o = {}) => { 
+    r = R(r); 
+    const alt = esc(o.alt || ''); 
+    const eager = o.eager ? ' fetchpriority="high"' : ''; 
+    const lazy = o.eager ? '' : ' loading="lazy"'; 
+    if (!r || (!r.u && !r.p && !r.local)) return `<img src="${PH}" alt="${alt}" decoding="async"${eager}${lazy}>`; 
+    
+    // Se tem prévia local, usa ela. Caso contrário, usa a URL do GitHub.
+    const src = r.local || r.u || ''; 
+    return `<img src="${esc(src)}" alt="${alt}" decoding="async"${eager}${lazy} onerror="this.onerror=null;this.src='${PH}';">`; 
+  };
   
   const hydrate = (root) => { 
     if (!root || !root.querySelectorAll) return; 
