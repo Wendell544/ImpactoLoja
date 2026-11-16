@@ -1,82 +1,93 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
+const IMG = (() => {
+  const TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/gif'];
+  const MB = 1024 * 1024;
+  const UPLOAD_URL = `${SB_URL}/functions/v1/upload-image`;
+  const URLS = new Map();
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+  const dec = (f) => 'createImageBitmap' in window ? createImageBitmap(f) : new Promise((ok, no) => { const i = new Image(), u = URL.createObjectURL(f); i.onload = () => { URL.revokeObjectURL(u); ok(i); }; i.onerror = () => no(new Error('x')); i.src = u; });
+  const cv = (s, max, type, q) => { const k = Math.min(1, max / Math.max(s.width, s.height)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(s.width * k)); c.height = Math.max(1, Math.round(s.height * k)); const x = c.getContext('2d'); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(s, 0, 0, c.width, c.height); return new Promise((r) => c.toBlob(r, type, q)); };
+  const enc = async (s, max, q = 0.8) => { let b = await cv(s, max, 'image/webp', q); if (!b || b.type !== 'image/webp') b = await cv(s, max, 'image/jpeg', q); return b; };
+  
+  const optimize = async (s) => {
+    let max = 1200; let q = 0.82;
+    let b = await enc(s, max, q);
+    if (b && b.size > 200 * 1024) { max = 800; q = 0.7; b = await enc(s, max, q); }
+    return b;
+  };
 
-const MAX_BYTES = 5 * 1024 * 1024;
+  async function one(f) {
+    const mb = DB.set.mb || 5; if (f.size > mb * MB) throw new Error(`${f.name}: passa de ${mb} MB.`);
+    if (!TYPES.includes(f.type) && !/\.(jpe?g|png|webp|heic|heif|gif|avif)$/i.test(f.name)) throw new Error(`${f.name}: formato não permitido.`);
+    let s; try { s = await dec(f); } catch (e) { throw new Error(`${f.name}: imagem inválida.`); }
+    
+    const full = await optimize(s); 
+    if (!full) throw new Error(`${f.name}: erro ao processar.`);
 
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS });
+    const k = 'i:' + (await hash(full)); 
+    if (URLS.has(k)) return { ref: { u: URLS.get(k), k }, dup: true };
+    
+    await SB.auth.refreshSession(); // Garante token atualizado
+    const session = await SB.auth.getSession(); 
+    const token = session.data.session?.access_token; 
+    if (!token) throw new Error('Faça login para enviar imagens.');
+    
+    const form = new FormData(); 
+    form.append('file', new File([full], 'upload.webp', { type: 'image/webp' }));
+    
+    const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form });
+    let body; try { body = await res.json(); } catch (e) { throw new Error(`Resposta inválida (${res.status}).`); }
+    
+    if (!res.ok) throw new Error(body.error || `Falha no upload (${res.status}).`);
+    
+    const ref = { u: body.url, k }; 
+    URLS.set(k, body.url); 
+    return { ref, dup: !!body.dup };
   }
-  if (req.method !== 'POST') {
-    return json({ error: 'Método não permitido.' }, 405);
+
+  async function hash(blob) { 
+    const u = new Uint8Array(await blob.arrayBuffer()); 
+    if (window.crypto && crypto.subtle) { 
+      try { const h = await crypto.subtle.digest('SHA-256', u); return [...new Uint8Array(h)].slice(0, 8).map((x) => x.toString(16).padStart(2, '0')).join(''); } catch (e) {} 
+    } 
+    let h = 5381; 
+    for (let i = 0; i < u.length; i += 7) h = ((h << 5) + h + u[i]) | 0; 
+    return (h >>> 0).toString(16) + u.length.toString(16); 
   }
 
-  try {
-    const authHeader = req.headers.get('Authorization') ?? '';
-    const token = authHeader.replace(/^Bearer\s+/i, '');
-    if (!token) return json({ error: 'Token ausente.' }, 401);
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
-    const { data: userData, error: userError } = await adminClient.auth.getUser(token);
-    if (userError || !userData?.user) return json({ error: 'Sessão expirada.' }, 401);
-    if (userData.user.app_metadata?.role !== 'admin') return json({ error: 'Acesso negado.' }, 403);
-
-    const formData = await req.formData();
-    const file = formData.get('file');
-    if (!(file instanceof File) || file.type !== 'image/webp') return json({ error: 'Envie apenas WebP válido.' }, 415);
-    if (file.size > MAX_BYTES) return json({ error: 'Arquivo muito grande (>5MB).' }, 413);
-
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const hashBuffer = await crypto.subtle.digest('SHA-256', bytes);
-    const hashHex = Array.from(new Uint8Array(hashBuffer).slice(0, 8)).map((b) => b.toString(16).padStart(2, '0')).join('');
-    const fileName = `i_${hashHex}.webp`;
-    const path = `img/${fileName}`;
-
-    const ghToken = Deno.env.get('GITHUB_TOKEN') ?? '';
-    const owner = Deno.env.get('GITHUB_OWNER') ?? 'wendell544';
-    const repo = Deno.env.get('GITHUB_REPO') ?? 'ImpactoLoja';
-    const branch = Deno.env.get('GITHUB_BRANCH') ?? 'main';
-
-    const ghHeaders = {
-      Authorization: `Bearer ${ghToken}`,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'Impacto-Upload',
-    };
-
-    const publicUrl = `https://${owner}.github.io/${repo}/img/${fileName}`;
-
-    const checkRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, { headers: ghHeaders });
-    if (checkRes.ok) return json({ url: publicUrl, dup: true });
-
-    let bin = '';
-    for (let i = 0; i < bytes.length; i += 0x8000) {
-      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000) as any);
-    }
-    const base64 = btoa(bin);
-
-    const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      method: 'PUT',
-      headers: { ...ghHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: `upload: ${fileName}`, content: base64, branch }),
-    });
-
-    if (!putRes.ok) return json({ error: `Erro no GitHub: ${putRes.status}` }, 502);
-
-    return json({ url: publicUrl, dup: false });
-  } catch (e: any) {
-    return json({ error: `Erro inesperado: ${e.message}` }, 500);
+  async function upload(files, onProgress, isBanner = false) { 
+    const refs = [], errs = []; 
+    let n = 0, dups = 0; 
+    for (const f of files) { 
+      try { 
+        const o = await one(f); 
+        if (o.dup) dups++; 
+        refs.push(o.ref); 
+      } catch (e) { 
+        errs.push(e.message || String(e)); 
+      } 
+      onProgress && onProgress(++n, files.length); 
+    } 
+    return { refs, errs, dups }; 
   }
-});
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
-}
+  const PH = art(40);
+  const html = (r, o = {}) => { r = R(r); const alt = esc(o.alt || ''); const eager = o.eager ? ' fetchpriority="high"' : ''; const lazy = o.eager ? '' : ' loading="lazy"'; if (!r || (!r.u && !r.p)) return `<img src="${PH}" alt="${alt}" decoding="async"${eager}${lazy}>`; const src = r.u || ''; return `<img src="${esc(src)}" alt="${alt}" decoding="async"${eager}${lazy} onerror="this.onerror=null;this.src='${PH}';">`; };
+  
+  const hydrate = (root) => { 
+    if (!root || !root.querySelectorAll) return; 
+    root.querySelectorAll('img').forEach((img) => { 
+      const clean = () => { 
+        const parent = img.closest('.sk, .cd-i, .bn-s, .ac-i, .ct-i, .ci-i, .th, .phi, .pm-main, .pm-th'); 
+        if (parent) parent.classList.remove('sk'); 
+      }; 
+      if (img.complete) clean(); 
+      else { 
+        img.addEventListener('load', clean, { once: true }); 
+        img.addEventListener('error', clean, { once: true }); 
+      } 
+    }); 
+  };
+  
+  async function migrateLegacy() {}
+  return { upload, html, hydrate, migrateLegacy };
+})();
