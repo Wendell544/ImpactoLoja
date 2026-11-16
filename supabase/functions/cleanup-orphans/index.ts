@@ -1,124 +1,64 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
-const ALLOWED_ORIGINS = ['https://wendell544.github.io'];
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
 const GITHUB_API = 'https://api.github.com';
 
-function corsFor(req: Request) {
-  const origin = req.headers.get('Origin') ?? '';
-  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : 'null';
-  return {
-    'Access-Control-Allow-Origin': allowed,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Vary': 'Origin',
-  };
-}
-
-function jsonFor(req: Request, body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsFor(req), 'Content-Type': 'application/json' },
-  });
-}
-
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        ...corsFor(req),
-        'Access-Control-Max-Age': '86400',
-      },
-    });
-  }
-
-  const origin = req.headers.get('Origin') ?? '';
-  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
-    return jsonFor(req, { error: 'Origem não permitida.' }, 403);
-  }
-  if (req.method !== 'POST') {
-    return jsonFor(req, { error: 'Método não permitido. Use POST.' }, 405);
-  }
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
+  if (req.method !== 'POST') return json({ error: 'Método não permitido.' }, 405);
 
   try {
     const authHeader = req.headers.get('Authorization') ?? '';
     const token = authHeader.replace(/^Bearer\s+/i, '');
-    if (!token) return jsonFor(req, { error: 'Token de autenticação ausente.' }, 401);
+    if (!token) return json({ error: 'Token ausente.' }, 401);
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const userClient = createClient(supabaseUrl, supabaseAnonKey);
-
-    const { data: userData, error: userError } = await userClient.auth.getUser(token);
-    if (userError || !userData?.user) {
-      return jsonFor(req, { error: 'Token inválido ou expirado.' }, 401);
-    }
-    if (userData.user.app_metadata?.role !== 'admin') {
-      return jsonFor(req, { error: 'Acesso negado. Apenas administradores podem limpar órfãos.' }, 403);
-    }
-
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const adminClient = createClient(supabaseUrl, serviceKey);
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    const { data: userData, error: userError } = await adminClient.auth.getUser(token);
+    
+    if (userError || !userData?.user) return json({ error: 'Sessão expirada. Faça login novamente.' }, 401);
+    if (userData.user.app_metadata?.role !== 'admin') return json({ error: 'Acesso negado.' }, 403);
 
     const referenced = new Set<string>();
-
-    const collectFromJsonb = (value: unknown) => {
-      if (!value) return;
-      if (typeof value === 'string') { referenced.add(value); return; }
-      if (Array.isArray(value)) {
-        value.forEach((v) => {
-          if (typeof v === 'string') referenced.add(v);
-          else if (v && typeof v === 'object' && 'u' in v && typeof (v as any).u === 'string') {
-            referenced.add((v as any).u);
-          }
-        });
-        return;
-      }
-      if (typeof value === 'object' && 'u' in value && typeof (value as any).u === 'string') {
-        referenced.add((value as any).u);
-      }
+    const collect = (v: any) => {
+      if (!v) return;
+      if (typeof v === 'string') { referenced.add(v.split('?')[0]); return; }
+      if (Array.isArray(v)) { v.forEach(collect); return; }
+      if (typeof v === 'object' && v.u) referenced.add(v.u.split('?')[0]);
     };
 
     const { data: products } = await adminClient.from('products').select('images');
-    (products ?? []).forEach((p) => collectFromJsonb(p.images));
+    (products ?? []).forEach((p) => collect(p.images));
     const { data: banners } = await adminClient.from('banners').select('img');
-    (banners ?? []).forEach((b) => collectFromJsonb(b.img));
+    (banners ?? []).forEach((b) => collect(b.img));
     const { data: ads } = await adminClient.from('ads').select('img');
-    (ads ?? []).forEach((a) => collectFromJsonb(a.img));
+    (ads ?? []).forEach((a) => collect(a.img));
     const { data: categories } = await adminClient.from('categories').select('img');
-    (categories ?? []).forEach((c) => collectFromJsonb(c.img));
+    (categories ?? []).forEach((c) => collect(c.img));
 
     const ghToken = Deno.env.get('GITHUB_TOKEN');
-    const owner = Deno.env.get('GITHUB_OWNER') ?? 'Wendell544';
-    const repo = Deno.env.get('GITHUB_REPO') ?? 'Bilinhajoias';
+    const owner = Deno.env.get('GITHUB_OWNER') ?? 'wendell544';
+    const repo = Deno.env.get('GITHUB_REPO') ?? 'ImpactoLoja';
     const branch = Deno.env.get('GITHUB_BRANCH') ?? 'main';
-
-    if (!ghToken) {
-      return jsonFor(req, { error: 'GITHUB_TOKEN não configurado.' }, 500);
-    }
 
     const ghHeaders = {
       Authorization: `Bearer ${ghToken}`,
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'Bilinha-Cleanup-Orphans',
+      'User-Agent': 'Cleanup-Orphans',
     };
 
-    const listRes = await fetch(
-      `${GITHUB_API}/repos/${owner}/${repo}/contents/img?ref=${branch}`,
-      { headers: ghHeaders },
-    );
-
-    if (!listRes.ok) {
-      const errText = await listRes.text();
-      return jsonFor(req, { error: `Erro ao listar img/: ${listRes.status} ${errText}` }, 502);
-    }
+    const listRes = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/contents/img?ref=${branch}`, { headers: ghHeaders });
+    if (!listRes.ok) return json({ error: `Erro no GitHub: ${listRes.status}` }, 502);
 
     const files = await listRes.json();
-    if (!Array.isArray(files)) {
-      return jsonFor(req, { error: 'Resposta inesperada da API do GitHub.' }, 502);
-    }
-
     const orphans = files.filter((f: any) => {
       if (f.type !== 'file') return false;
       if (!/^i_[a-f0-9]+\.webp$/.test(f.name)) return false;
@@ -126,38 +66,23 @@ Deno.serve(async (req) => {
       return !referenced.has(publicUrl);
     });
 
-    const removed: string[] = [];
-    const errors: string[] = [];
-
+    const removed = [], errors = [];
     for (const file of orphans) {
-      const delRes = await fetch(
-        `${GITHUB_API}/repos/${owner}/${repo}/contents/img/${file.name}`,
-        {
-          method: 'DELETE',
-          headers: { ...ghHeaders, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: `cleanup: remove órfão ${file.name}`,
-            sha: file.sha,
-            branch,
-          }),
-        },
-      );
-
+      const delRes = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/contents/img/${file.name}`, {
+        method: 'DELETE',
+        headers: { ...ghHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: `cleanup: ${file.name}`, sha: file.sha, branch }),
+      });
       if (delRes.ok) removed.push(file.name);
-      else {
-        const errText = await delRes.text();
-        errors.push(`${file.name}: ${delRes.status} ${errText}`);
-      }
+      else errors.push(`${file.name}: ${delRes.status}`);
     }
 
-    return jsonFor(req, {
-      removed,
-      kept: files.length - orphans.length,
-      total: files.length,
-      errors: errors.length ? errors : undefined,
-    });
+    return json({ removed, kept: files.length - orphans.length, total: files.length });
   } catch (e) {
-    console.error('cleanup-orphans:', e);
-    return jsonFor(req, { error: `Erro inesperado: ${e instanceof Error ? e.message : String(e)}` }, 500);
+    return json({ error: `Erro inesperado: ${e.message}` }, 500);
   }
 });
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
+}
