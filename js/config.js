@@ -1,20 +1,20 @@
-const V = 15, PFX = 'impacto_', KEY = {
+const V = 16, PFX = 'impacto_', KEY = {
   prod: PFX + 'products', cart: PFX + 'cart', ads: PFX + 'ads', cats: PFX + 'cats',
   set: PFX + 'settings', meta: PFX + 'meta', pref: PFX + 'prefs', draft: PFX + 'draft',
   pw: PFX + 'k2', lock: PFX + 'lock', hist: PFX + 'hist', adm: PFX + 'adm',
   chg: PFX + 'chg', pub: PFX + 'pub', log: PFX + 'log'
 };
 
-/* ---- DADOS DO SUPABASE (Impacto) ---- */
+/* ---- SUPABASE DA IMPACTO ---- */
 const SB_URL = 'https://rkrqqreogrkhvfacaqdg.supabase.co';
 const SB_KEY = 'sb_publishable_n9lkB2JjH_a1d2hr3GgiyA_xMJ1BAgF';
 
-/* ---- DADOS DO GITHUB ---- */
+/* ---- GITHUB ---- */
 const GH_OWNER = 'wendell544';
 const GH_REPO = 'ImpactoLoja';
 
 /* ---- DADOS DA LOJA ---- */
-const WAD = ['5583', '99999', '9999'].join('');
+const WAD = ['5583', '99999', '9999'].join(''); // Coloque o WhatsApp real
 const CATS0 = ['Camisas', 'Polos', 'Calças', 'Bermudas', 'Calçados', 'Acessórios'];
 
 const SET0 = {
@@ -61,11 +61,7 @@ const toast = (t) => {
 };
 
 const lock = () => {
-  document.documentElement.classList.toggle(
-    'al',
-    ['lg', 'pm', 'adm'].some((i) => $(i) && !$(i).classList.contains('hid')) ||
-      ($('drw') && $('drw').classList.contains('on')),
-  );
+  document.documentElement.classList.toggle('al', ['lg', 'pm', 'adm'].some((i) => $(i) && !$(i).classList.contains('hid')) || ($('drw') && $('drw').classList.contains('on')));
 };
 
 const modal = (id, on) => {
@@ -93,6 +89,7 @@ const IC = {
   wa: '<path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5.2A8.5 8.5 0 1 1 21 11.5z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8c-1-.4-1.8-1.2-2.2-2.2l.8-1-1-2z"/>',
   star: '<path d="m12 2 3 6.5 7 .8-5.2 4.8 1.4 7L12 17.5 5.8 21l1.4-7L2 9.3l7-.8z"/>',
   moon: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
   prev: '<path d="m15 18-6-6 6-6"/>',
   next: '<path d="m9 18 6-6-6-6"/>',
   pause: '<path d="M8 5v14M16 5v14"/>',
@@ -104,46 +101,25 @@ const IC = {
 
 const ic = (n, s = 20) =>
   '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-  (IC[n] || '') +
-  '</svg>';
+  (IC[n] || '') + '</svg>';
 
 const art = (h) =>
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><radialGradient id="g" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="hsl(' +
-      h +
-      ',28%,26%)"/><stop offset="1" stop-color="hsl(' +
-      h +
-      ',22%,8%)"/></radialGradient></defs><rect width="400" height="400" fill="url(#g)"/><g fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"><path d="M140 150h120l40 50-100 110-100-110z"/></g><text x="200" y="365" text-anchor="middle" font-family="sans-serif" font-size="20" letter-spacing="6" fill="#fff" opacity=".7">IMPACTO</text></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><radialGradient id="g" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="hsl(' + h + ',28%,26%)"/><stop offset="1" stop-color="hsl(' + h + ',22%,8%)"/></radialGradient></defs><rect width="400" height="400" fill="url(#g)"/><g fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"><path d="M140 150h120l40 50-100 110-100-110z"/></g><text x="200" y="365" text-anchor="middle" font-family="sans-serif" font-size="20" letter-spacing="6" fill="#fff" opacity=".7">IMPACTO</text></svg>',
   );
 
 const seed = () => [
   ['Camiseta Oversized Premium', 'Camisas', 89.9, 69.9, '3x sem juros', 'Algodão de alta qualidade com modelagem confortável.', 1, 215],
   ['Calça Cargo Tactel', 'Calças', 159.9, 0, '5x sem juros', 'Calça cargo resistente, ideal para o dia a dia.', 1, 42]
 ].map((a, i) => ({
-  id: i + 1,
-  title: a[0],
-  category: a[1],
-  price: a[2],
-  promo: a[3] || null,
-  installment: a[4],
-  description: a[5],
-  featured: !!a[6],
-  available: true,
-  images: [art(a[7])],
-  created_at: new Date().toISOString()
+  id: i + 1, title: a[0], category: a[1], price: a[2], promo: a[3] || null,
+  installment: a[4], description: a[5], featured: !!a[6], available: true,
+  images: [art(a[7])], created_at: new Date().toISOString()
 }));
 
 const ads0 = () => [
-  {
-    id: 1,
-    on: true,
-    title: 'Novidades da Semana',
-    text: 'Confira as peças que acabaram de chegar na loja.',
-    btn: 'Ver Coleção',
-    link: '',
-    img: null
-  }
+  { id: 1, on: true, title: 'Novidades da Semana', text: 'Confira as peças que acabaram de chegar na loja.', btn: 'Ver Coleção', link: '', img: null }
 ];
 
 const SB = supabase.createClient(SB_URL, SB_KEY);
