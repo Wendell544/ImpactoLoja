@@ -155,7 +155,7 @@ async function upRun0(files, isBanner) {
 async function upP(files) {
   if (!files.length) return;
   const room = 12 - A.imgs.length; if (room <= 0) { toast('Limite de 12 fotos por produto.'); return; }
-  const r = await upRun(files.slice(0, room), false); 
+  const r = await upRun(files.slice(0, room), false);
   r.refs.forEach((x) => { if (!A.imgs.some((y) => (R(y)?.u || '') === x.u)) A.imgs.push(x); });
   if (r.refs.length) A.sel = A.imgs.length - 1;
   phs(); drs();
@@ -163,13 +163,13 @@ async function upP(files) {
 
 async function upM(files) {
   if (!files.length) return;
-  const r = await upRun([files[0]], true); 
+  const r = await upRun([files[0]], true);
   if (r.refs[0]) { A.m.img = r.refs[0].u; mpv(); }
 }
 
 async function upSet(files) {
   if (!files.length) return;
-  const r = await upRun([files[0]], true); 
+  const r = await upRun([files[0]], true);
   if (r.refs[0]) { A.setBg = r.refs[0].u; setpv(); }
 }
 
@@ -370,27 +370,26 @@ ACT.spw = async () => { const v = $('np').value; if (v.length < 8) return toast(
 ACT.cleanup = async () => {
   const out = $('cleanup-out'); out.textContent = 'Limpando…';
   const session = await Auth.getSession(); if (!session) return toast('Sessão expirada. Faça login novamente.');
-  
+
+  // ✅ URL CORRIGIDA AQUI
+  const res = await fetch(`${SB_URL}/functions/v1/cleanup-orphans`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.access_token}` }
+  });
+  let body;
   try {
-    const res = await fetch(`${SB_URL}/functions/v1/https://ncrsodkpduroulzkpaky.supabase.co/functions/v1/cleanup-orphans`, { 
-        method: 'POST', 
-        headers: { Authorization: `Bearer ${session.access_token}` } 
-    });
-    let body; 
-    try { body = await res.json(); } catch (e) { out.textContent = 'Resposta inválida.'; return; }
-    
-    if (!res.ok) { 
-        if(res.status===401) {
-            out.textContent = 'Sessão expirada. Faça logout e login novamente.';
-        } else {
-            out.textContent = 'Erro: ' + (body.error || res.status); 
-        }
-        return; 
-    }
-    out.textContent = `Removidos: ${body.removed?.length ?? 0} · Mantidos: ${body.kept ?? 0} · Total: ${body.total ?? 0}\n` + (body.removed?.length ? body.removed.join('\n') : 'Nenhum órfão encontrado.');
-  } catch (error) {
-      out.textContent = 'Falha na conexão. Verifique se a função cleanup-orphans está com Verify JWT desligado no Supabase.';
+    body = await res.json();
+  } catch (e) {
+    out.textContent = 'Resposta inválida.';
+    return;
   }
+  if (!res.ok) {
+    out.textContent = 'Erro: ' + (body.error || res.status);
+    return;
+  }
+  out.textContent =
+    `Removidos: ${body.removed?.length ?? 0} · Mantidos: ${body.kept ?? 0} · Total: ${body.total ?? 0}\n` +
+    (body.removed?.length ? body.removed.join('\n') : 'Nenhum órfão encontrado.');
 };
 
 ACT.bk = () => {
