@@ -7,15 +7,13 @@ const CORS = {
 };
 
 Deno.serve(async (req) => {
-  // ESSA LINHA É A MAIS IMPORTANTE PARA O CORS
+  // Responde ao preflight do navegador com 204 (evita erro de CORS)
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: CORS });
+    return new Response(null, { status: 204, headers: CORS });
   }
 
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Método não permitido.' }), { 
-      status: 405, headers: { ...CORS, 'Content-Type': 'application/json' } 
-    });
+    return json({ error: 'Método não permitido.' }, 405);
   }
 
   try {
@@ -25,12 +23,10 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    
-    if (!supabaseUrl || !serviceRoleKey) return json({ error: 'Variáveis do Supabase não configuradas.' }, 500);
-
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    // Valida o token usando a chave de Admin (mais seguro)
     const { data: userData, error: userError } = await adminClient.auth.getUser(token);
-    
     if (userError || !userData?.user) return json({ error: 'Sessão expirada.' }, 401);
     if (userData.user.app_metadata?.role !== 'admin') return json({ error: 'Acesso negado.' }, 403);
 
@@ -56,13 +52,11 @@ Deno.serve(async (req) => {
     const repo = Deno.env.get('GITHUB_REPO') ?? 'ImpactoLoja';
     const branch = Deno.env.get('GITHUB_BRANCH') ?? 'main';
 
-    if (!ghToken) return json({ error: 'GITHUB_TOKEN não configurado.' }, 500);
-
     const ghHeaders = {
       Authorization: `Bearer ${ghToken}`,
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'Cleanup-Orphans',
+      'User-Agent': 'Impacto-Cleanup',
     };
 
     const listRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/img?ref=${branch}`, { headers: ghHeaders });
@@ -75,7 +69,7 @@ Deno.serve(async (req) => {
       return !referenced.has(publicUrl);
     });
 
-    const removed = [], errors = [];
+    const removed = [];
     for (const file of orphans) {
       const delRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/img/${file.name}`, {
         method: 'DELETE',
@@ -83,18 +77,12 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ message: `cleanup: ${file.name}`, sha: file.sha, branch }),
       });
       if (delRes.ok) removed.push(file.name);
-      else errors.push(`${file.name}: ${delRes.status}`);
     }
 
     return json({ removed, kept: files.length - orphans.length, total: files.length });
   } catch (e: any) {
     return json({ error: `Erro inesperado: ${e.message}` }, 500);
   }
-});
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
-}
 });
 
 function json(body: unknown, status = 200) {
