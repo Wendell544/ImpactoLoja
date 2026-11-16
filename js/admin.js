@@ -371,8 +371,8 @@ ACT.cleanup = async () => {
   const out = $('cleanup-out'); out.textContent = 'Limpando…';
   const session = await Auth.getSession(); if (!session) return toast('Sessão expirada. Faça login novamente.');
 
-  // ✅ URL CORRIGIDA AQUI
-  const res = await fetch(`${SB_URL}/functions/v1/cleanup-orphans`, {
+  // ✅ URL CORRIGIDA PARA O NOME QUE VOCÊ CRIOU NO SUPABASE
+  const res = await fetch(`${SB_URL}/functions/v1/smooth-action`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${session.access_token}` }
   });
