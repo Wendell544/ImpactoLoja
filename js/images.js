@@ -19,7 +19,13 @@ const IMG = (() => {
     let s; try { s = await dec(f); } catch (e) { throw new Error(`${f.name}: imagem inválida.`); }
     const full = await optimize(s, isBanner); if (!full) throw new Error(`${f.name}: erro ao processar.`);
     const k = 'i:' + (await hash(full)); if (URLS.has(k)) return { ref: { u: URLS.get(k), k }, dup: true };
-    const session = await SB.auth.getSession(); const token = session.data.session?.access_token; if (!token) throw new Error('Faça login para enviar imagens.');
+    
+    // Força a atualização da sessão antes de pegar o token
+    await SB.auth.refreshSession();
+    const session = await SB.auth.getSession(); 
+    const token = session.data.session?.access_token; 
+    if (!token) throw new Error('Faça login para enviar imagens.');
+    
     const form = new FormData(); form.append('file', new File([full], 'upload.webp', { type: 'image/webp' }));
     const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form });
     let body; try { body = await res.json(); } catch (e) { throw new Error(`Resposta inválida (${res.status}).`); }
