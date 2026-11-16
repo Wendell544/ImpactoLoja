@@ -109,7 +109,7 @@ function tProd() {
 
 function phs() {
   const a = A.imgs;
-  $('pph').innerHTML = a.map((r, i) => `<button class="phi${i === A.sel ? ' on' : ''}" data-a="psel" data-v="${i}" aria-label="Foto ${i + 1}"><span class="sk">${IMG.html(r, { s: 'thumb' })}</span>${i ? '' : '<em>Principal</em>'}</button>`).join('') || '<p class="sm tm">Nenhuma foto. Sem foto, a loja mostra uma imagem padrão.</p>';
+  $('pph').innerHTML = a.map((r, i) => `<button class="phi${i === A.sel ? ' on' : ''}" data-a="psel" data-v="${i}" aria-label="Foto ${i + 1}"><span class="sk">${IMG.html(R(r), { s: 'thumb' })}</span>${i ? '' : '<em>Principal</em>'}</button>`).join('') || '<p class="sm tm">Nenhuma foto. Sem foto, a loja mostra uma imagem padrão.</p>';
   if (a.length) $('pph').insertAdjacentHTML('beforeend', '<div class="row wrap" style="flex-basis:100%"><button class="b ghost" data-a="pph" data-v="star">Tornar principal</button><button class="b ghost" data-a="pph" data-v="l">‹ Mover</button><button class="b ghost" data-a="pph" data-v="r">Mover ›</button><button class="b ghost" data-a="pph" data-v="x">Remover foto</button></div>');
   IMG.hydrate?.($('pph'));
 }
@@ -148,7 +148,7 @@ async function upRun0(files, isBanner) {
   if (p) p.classList.remove('hid'); if (b) b.style.width = '5%';
   const r = await IMG.upload(files, (n, t) => { if (b) b.style.width = Math.round((n / t) * 100) + '%'; if ($('pgt')) $('pgt').textContent = 'Processando ' + n + ' de ' + t + '…'; }, isBanner);
   setTimeout(() => { if (p) p.classList.add('hid'); }, 600);
-  if ($('pgt')) $('pgt').textContent = [r.refs.length ? r.refs.length + ' foto(s) otimizada(s) em WebP' : '', r.dups ? r.dups + ' já existia(m)' : '', ...r.errs].filter(Boolean).join(' · ');
+  if ($('pgt')) $('pgt').textContent = [r.refs.length ? r.refs.length + ' foto(s) otimizada(s)' : '', r.dups ? r.dups + ' já existia(m)' : '', ...r.errs].filter(Boolean).join(' · ');
   return r;
 }
 
@@ -164,20 +164,28 @@ async function upP(files) {
 async function upM(files) {
   if (!files.length) return;
   const r = await upRun([files[0]], true);
-  if (r.refs[0]) { A.m.img = r.refs[0].u; mpv(); }
+  if (r.refs[0]) { A.m.img = r.refs[0]; mpv(); }
 }
 
 async function upSet(files) {
   if (!files.length) return;
   const r = await upRun([files[0]], true);
-  if (r.refs[0]) { A.setBg = r.refs[0].u; setpv(); }
+  if (r.refs[0]) { A.setBg = r.refs[0]; setpv(); }
 }
 
 async function saveP() {
   const g = (k) => $('pf-' + k).value.trim(), t = g('title'), p = parseFloat(g('price')), o = parseFloat(g('promo')), er = $('perr');
   const m = t.length < 2 ? 'Informe o nome do produto.' : !(p > 0 && p < 1e7) ? 'Informe um preço original válido.' : o >= p ? 'O preço promocional deve ser menor que o original.' : '';
   er.textContent = m; er.classList.toggle('hid', !m); if (m) return;
-  const d = { title: t.slice(0, 120), category: g('cat'), price: p, promo: o > 0 ? o : null, installment: g('inst').slice(0, 40), description: g('desc').slice(0, 2000), featured: $('pf-feat').checked, available: $('pf-av').checked, images: A.imgs.map((r) => (typeof r === 'string' ? { u: r } : r)) };
+
+  const d = {
+    title: t.slice(0, 120), category: g('cat'), price: p, promo: o > 0 ? o : null,
+    installment: g('inst').slice(0, 40), description: g('desc').slice(0, 2000),
+    featured: $('pf-feat').checked, available: $('pf-av').checked,
+    // Salva apenas u e k no banco (descarta a url local blob temporária)
+    images: A.imgs.map((r) => { const x = R(r); return x ? { u: x.u, k: x.k } : r; })
+  };
+
   if (A.edit) {
     const { data, error } = await SB.from('products').update(d).eq('id', A.edit).select().single();
     if (error) return toast(errMsg(error)); DB.prod = DB.prod.map((p) => p.id === A.edit ? data : p);
@@ -188,8 +196,8 @@ async function saveP() {
   A.edit = null; A.imgs = []; A.sel = 0; Draft.clear(); render(); show(0); toast('Produto salvo.');
 }
 
-const mpv = () => { const e = $('mpv'); if (e) e.innerHTML = A.m.img ? IMG.html({ u: A.m.img }, { s: 'thumb' }) : '<span class="sm tm">Sem imagem</span>'; };
-const setpv = () => { const e = $('setpv'); if (e) e.innerHTML = A.setBg ? IMG.html({ u: A.setBg }, { s: 'thumb' }) : '<span class="sm tm">Sem imagem</span>'; };
+const mpv = () => { const e = $('mpv'); if (e) e.innerHTML = A.m.img ? IMG.html(R(A.m.img), { s: 'thumb' }) : '<span class="sm tm">Sem imagem</span>'; };
+const setpv = () => { const e = $('setpv'); if (e) e.innerHTML = A.setBg ? IMG.html(R(A.setBg), { s: 'thumb' }) : '<span class="sm tm">Sem imagem</span>'; };
 
 function fillM(x) {
   MG[A.m.k].f.forEach(([f, l, type]) => { const e = $('mf-' + f); if (e) e.value = x[f] !== undefined && x[f] !== null ? x[f] : (type === 'select' ? 'horizontal' : ''); });
@@ -319,7 +327,8 @@ ACT.mnew = (k) => { A.m = { k, id: null, img: null }; show(A.tab); };
 ACT.mimgx = () => { A.m.img = null; mpv(); };
 ACT.simgx = () => { A.setBg = null; setpv(); };
 ACT.msave = async (k) => {
-  const m = MG[k], o = { on: $('mf-on').checked }; m.f.forEach(([f]) => (o[f] = $('mf-' + f).value.trim())); if (A.m.img) o.img = { u: A.m.img };
+  const m = MG[k], o = { on: $('mf-on').checked }; m.f.forEach(([f]) => (o[f] = $('mf-' + f).value.trim()));
+  if (A.m.img) o.img = { u: R(A.m.img).u };
   if (k === 'categories') { if (!o.name) return toast('Informe o nome da categoria.'); if (DB.categories.some((c) => c.id !== A.m.id && nz(c.name) === nz(o.name))) return toast('Já existe uma categoria com esse nome.'); }
   else if (!o.title && !o.img) { return toast('Informe um título ou envie uma imagem.'); }
   if (o.link && !okUrl(o.link)) return toast('O link deve começar com http:// ou https://');
@@ -360,7 +369,7 @@ ACT.sset = async () => {
     ...s, kick: v('kick').slice(0, 60), title: v('title').slice(0, 120) || SET0.title, text: v('text').slice(0, 300), about: v('about').slice(0, 400),
     wa: w || WAD, email: v('email'), addr: v('addr').slice(0, 120), ig, fb: v('fb'),
     sec: n('sec', 2, 30), page: n('page', 4, 48), mb: n('mb', 1, 5),
-    hero_bg: A.setBg ? { u: A.setBg } : null, show: Object.fromEntries(SH.map(([k]) => [k, $('ss-' + k)?.checked ? 1 : 0]))
+    hero_bg: A.setBg ? { u: R(A.setBg).u } : null, show: Object.fromEntries(SH.map(([k]) => [k, $('ss-' + k)?.checked ? 1 : 0]))
   };
   const { error } = await SB.from('settings').upsert({ id: 1, data });
   if (error) return toast(errMsg(error)); DB.set = data; render(); toast('Configurações salvas.');
@@ -370,26 +379,14 @@ ACT.spw = async () => { const v = $('np').value; if (v.length < 8) return toast(
 ACT.cleanup = async () => {
   const out = $('cleanup-out'); out.textContent = 'Limpando…';
   const session = await Auth.getSession(); if (!session) return toast('Sessão expirada. Faça login novamente.');
-
-  // ✅ URL CORRIGIDA PARA O NOME QUE VOCÊ CRIOU NO SUPABASE
   const res = await fetch(`${SB_URL}/functions/v1/smooth-action`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${session.access_token}` }
   });
   let body;
-  try {
-    body = await res.json();
-  } catch (e) {
-    out.textContent = 'Resposta inválida.';
-    return;
-  }
-  if (!res.ok) {
-    out.textContent = 'Erro: ' + (body.error || res.status);
-    return;
-  }
-  out.textContent =
-    `Removidos: ${body.removed?.length ?? 0} · Mantidos: ${body.kept ?? 0} · Total: ${body.total ?? 0}\n` +
-    (body.removed?.length ? body.removed.join('\n') : 'Nenhum órfão encontrado.');
+  try { body = await res.json(); } catch (e) { out.textContent = 'Resposta inválida.'; return; }
+  if (!res.ok) { out.textContent = 'Erro: ' + (body.error || res.status); return; }
+  out.textContent = `Removidos: ${body.removed?.length ?? 0} · Mantidos: ${body.kept ?? 0} · Total: ${body.total ?? 0}\n` + (body.removed?.length ? body.removed.join('\n') : 'Nenhum órfão encontrado.');
 };
 
 ACT.bk = () => {
