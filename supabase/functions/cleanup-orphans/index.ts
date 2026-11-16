@@ -6,16 +6,15 @@ const CORS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-const GITHUB_API = 'https://api.github.com';
-
 Deno.serve(async (req) => {
-  // Responde ao preflight do navegador (CORS)
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS });
   }
 
   if (req.method !== 'POST') {
-    return json({ error: 'Método não permitido.' }, 405);
+    return new Response(JSON.stringify({ error: 'Método não permitido.' }), { 
+      status: 405, headers: { ...CORS, 'Content-Type': 'application/json' } 
+    });
   }
 
   try {
@@ -23,14 +22,15 @@ Deno.serve(async (req) => {
     const token = authHeader.replace(/^Bearer\s+/i, '');
     if (!token) return json({ error: 'Token ausente.' }, 401);
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
     
-    // Valida o token usando a chave Admin (mais seguro contra chaves anon antigas)
+    if (!supabaseUrl || !serviceRoleKey) return json({ error: 'Variáveis do Supabase não configuradas.' }, 500);
+
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
     const { data: userData, error: userError } = await adminClient.auth.getUser(token);
     
-    if (userError || !userData?.user) return json({ error: 'Sessão expirada. Faça login novamente.' }, 401);
+    if (userError || !userData?.user) return json({ error: 'Sessão expirada.' }, 401);
     if (userData.user.app_metadata?.role !== 'admin') return json({ error: 'Acesso negado.' }, 403);
 
     const referenced = new Set<string>();
@@ -50,10 +50,12 @@ Deno.serve(async (req) => {
     const { data: categories } = await adminClient.from('categories').select('img');
     (categories ?? []).forEach((c) => collect(c.img));
 
-    const ghToken = Deno.env.get('GITHUB_TOKEN');
+    const ghToken = Deno.env.get('GITHUB_TOKEN') ?? '';
     const owner = Deno.env.get('GITHUB_OWNER') ?? 'wendell544';
     const repo = Deno.env.get('GITHUB_REPO') ?? 'ImpactoLoja';
     const branch = Deno.env.get('GITHUB_BRANCH') ?? 'main';
+
+    if (!ghToken) return json({ error: 'GITHUB_TOKEN não configurado.' }, 500);
 
     const ghHeaders = {
       Authorization: `Bearer ${ghToken}`,
@@ -62,20 +64,19 @@ Deno.serve(async (req) => {
       'User-Agent': 'Cleanup-Orphans',
     };
 
-    const listRes = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/contents/img?ref=${branch}`, { headers: ghHeaders });
+    const listRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/img?ref=${branch}`, { headers: ghHeaders });
     if (!listRes.ok) return json({ error: `Erro no GitHub: ${listRes.status}` }, 502);
 
     const files = await listRes.json();
     const orphans = files.filter((f: any) => {
-      if (f.type !== 'file') return false;
-      if (!/^i_[a-f0-9]+\.webp$/.test(f.name)) return false;
+      if (f.type !== 'file' || !/^i_[a-f0-9]+\.webp$/.test(f.name)) return false;
       const publicUrl = `https://${owner}.github.io/${repo}/img/${f.name}`;
       return !referenced.has(publicUrl);
     });
 
     const removed = [], errors = [];
     for (const file of orphans) {
-      const delRes = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/contents/img/${file.name}`, {
+      const delRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/img/${file.name}`, {
         method: 'DELETE',
         headers: { ...ghHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: `cleanup: ${file.name}`, sha: file.sha, branch }),
@@ -85,7 +86,7 @@ Deno.serve(async (req) => {
     }
 
     return json({ removed, kept: files.length - orphans.length, total: files.length });
-  } catch (e) {
+  } catch (e: any) {
     return json({ error: `Erro inesperado: ${e.message}` }, 500);
   }
 });
